@@ -2,9 +2,6 @@
 
 A personalized, local AI study assistant built to support a Cybersecurity T-Level curriculum. This application runs entirely on your local machine, ensuring privacy and full control over your data. It leverages a powerful local LLM via Ollama and uses Retrieval-Augmented Generation (RAG) to provide answers based on your own course notes, textbooks, and documents.
 
-
-*--(To add a screenshot: Take a picture of your app running, upload it to a site like [Imgur](https://imgur.com/upload), and replace the URL above with your image link!)--*
-
 ## 🚀 Key Features
 
 *   **🧠 Conversational Memory:** Remembers the context of your conversation for intelligent, human-like follow-up questions.
