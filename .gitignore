@@ -1,0 +1,18 @@
+# Ignore Python's cache files
+__pycache__/
+*.pyc
+
+# Ignore the large, locally-generated vector database
+# The user should generate this themselves by running ingest.py
+chroma_db/
+
+# Ignore user-specific conversation logs
+conversations/
+
+# Ignore virtual environment folders (if you ever use them)
+venv/
+.venv/
+
+# Ignore IDE-specific folders
+.vscode/
+.idea/
