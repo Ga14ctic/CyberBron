@@ -9,7 +9,7 @@ A personalized, local AI study assistant built to support a Cybersecurity T-Leve
 *   **🔒 100% Local & Private:** Your documents and conversations never leave your computer. Powered by Ollama.
 *   **💬 Multi-Conversation UI:** Create, save, and switch between multiple chat sessions, all stored locally.
 *   **💻 GPU Accelerated:** Optimized to run on NVIDIA GPUs for significantly faster response times.
-*   ** personality:** A unique "CyberBron" persona, blending expert cybersecurity knowledge with LeBron James-inspired humor and motivation.
+*   **personality:** A unique "CyberBron" persona, blending expert cybersecurity knowledge with LeBron James-inspired humor and motivation for freshness and a more relaxed nature when working.
 
 ## 🛠️ Tech Stack
 
