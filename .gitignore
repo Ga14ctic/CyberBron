@@ -16,3 +16,10 @@ venv/
 # Ignore IDE-specific folders
 .vscode/
 .idea/
+
+# Ignore user-specific config overrides
+config.local.yaml
+
+# Ignore log files
+*.log
+logs/
