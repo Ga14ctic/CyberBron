@@ -73,7 +73,7 @@ def load_config():
             logger.warning("config.yaml not found, using default configuration")
             return default_config
     except Exception as e:
-        logger.error(f"Error loading config: {e}, using defaults")
+        logger.error(f"Error loading configuration from config.yaml: {e}, falling back to defaults")
         return default_config
 
 CONFIG = load_config()
@@ -214,11 +214,17 @@ def get_rag_chain():
         retrieval_k = CONFIG["rag"]["retrieval_k"]
         retriever = vector_store.as_retriever(search_kwargs={"k": retrieval_k})
         
-        llm = OllamaLLM(
-            model=MODEL_NAME,
-            base_url=OLLAMA_BASE_URL,
-            temperature=CONFIG["models"]["temperature"]
-        )
+        # Initialize LLM with error handling
+        try:
+            llm = OllamaLLM(
+                model=MODEL_NAME,
+                base_url=OLLAMA_BASE_URL,
+                temperature=CONFIG["models"]["temperature"]
+            )
+        except Exception as e:
+            logger.error(f"Failed to initialize LLM model '{MODEL_NAME}': {e}")
+            st.error(f"⚠️ Failed to load model '{MODEL_NAME}'. Please ensure it's downloaded with: ollama pull {MODEL_NAME}")
+            st.stop()
 
         rephrasing_prompt = ChatPromptTemplate.from_messages([
             ("system", "Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is."),
@@ -294,14 +300,20 @@ def main():
         with col2:
             # Advanced settings expander
             with st.expander("⚙️"):
+                # Use session state for retrieval_k override
+                if 'retrieval_k_override' not in st.session_state:
+                    st.session_state.retrieval_k_override = CONFIG["rag"]["retrieval_k"]
+                
                 retrieval_k = st.slider(
                     "Documents to retrieve",
                     min_value=1,
                     max_value=10,
-                    value=CONFIG["rag"]["retrieval_k"],
+                    value=st.session_state.retrieval_k_override,
                     help="Number of relevant documents to use for answering"
                 )
-                if retrieval_k != CONFIG["rag"]["retrieval_k"]:
+                if retrieval_k != st.session_state.retrieval_k_override:
+                    st.session_state.retrieval_k_override = retrieval_k
+                    # Update the config only for this session
                     CONFIG["rag"]["retrieval_k"] = retrieval_k
                     st.cache_resource.clear()
                     logger.info(f"Updated retrieval_k to {retrieval_k}")

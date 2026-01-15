@@ -25,6 +25,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+ERROR_MESSAGE_MAX_LENGTH = 50  # Maximum length for truncated error messages
+
 # --- Configuration ---
 def load_config():
     """Load configuration from config.yaml with fallback to defaults."""
@@ -56,7 +59,7 @@ def load_config():
             logger.warning("config.yaml not found, using default configuration")
             return default_config
     except Exception as e:
-        logger.error(f"Error loading config: {e}, using defaults")
+        logger.error(f"Error loading configuration from config.yaml: {e}, falling back to defaults")
         return default_config
 
 CONFIG = load_config()
@@ -160,7 +163,9 @@ def load_documents():
                 logger.debug(f"Skipped unsupported file: {filename}")
         except Exception as e:
             logger.error(f"Failed to load {filename}: {e}")
-            print(f"  ✖ Failed: {filename} - {str(e)[:50]}")
+            error_msg = str(e)
+            truncated = error_msg[:ERROR_MESSAGE_MAX_LENGTH] + "..." if len(error_msg) > ERROR_MESSAGE_MAX_LENGTH else error_msg
+            print(f"  ✖ Failed: {filename} - {truncated}")
     
     print(f"  ✓ Successfully loaded {successful_loads}/{len(files)} file(s)")
     
@@ -175,7 +180,10 @@ def load_documents():
                 logger.info(f"Scraped: {url}")
             except Exception as e:
                 logger.error(f"Failed to scrape {url}: {e}")
-                print(f"  ✖ Failed: {url[:50]}... - {str(e)[:50]}")
+                url_display = url[:50] + "..." if len(url) > 50 else url
+                error_msg = str(e)
+                truncated = error_msg[:ERROR_MESSAGE_MAX_LENGTH] + "..." if len(error_msg) > ERROR_MESSAGE_MAX_LENGTH else error_msg
+                print(f"  ✖ Failed: {url_display} - {truncated}")
     
     print(f"  ✓ Total documents loaded: {len(documents)}")
     return documents
