@@ -1,0 +1,40 @@
+# Example Configuration for Lower Memory Usage
+# Copy this to config.yaml or config.local.yaml and adjust as needed
+
+# Model Settings - Using smaller models
+models:
+  llm: "llama3:8b-instruct-q4_0"  # Quantized to 4-bit for less memory
+  embeddings: "nomic-embed-text"   # Already efficient
+  temperature: 0.7
+  
+# Ollama Settings
+ollama:
+  base_url: "http://localhost:11434"
+  timeout: 120
+
+# RAG Settings - Optimized for memory
+rag:
+  chunk_size: 800          # Smaller chunks = less context per retrieval
+  chunk_overlap: 150       # Reduced overlap
+  retrieval_k: 3           # Fewer documents retrieved
+  max_history_messages: 10 # Shorter conversation memory
+
+# Response Settings
+response:
+  min_words: 200           # Shorter responses
+  streaming: true
+  
+# Persona Settings
+persona:
+  name: "CyberBron"
+  humor_level: "low"       # Less humor = faster responses
+  min_jokes_per_response: 1
+
+# Paths
+paths:
+  data: "data"
+  chroma_db: "chroma_db"
+  conversations: "conversations"
+
+# Web Scraping - Disabled to reduce initial processing
+web_sources: []
