@@ -6,6 +6,10 @@ __pycache__/
 # The user should generate this themselves by running ingest.py
 chroma_db/
 
+# Ignore user data files but keep the README
+data/*
+!data/README.md
+
 # Ignore user-specific conversation logs
 conversations/
 
