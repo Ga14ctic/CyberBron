@@ -1,0 +1,21 @@
+# Core dependencies
+streamlit>=1.28.0
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-ollama>=0.2.0
+langchain-core>=0.3.0
+
+# Vector store and embeddings
+chromadb>=0.4.22
+
+# Document processing
+pypdf>=3.17.0
+docx2txt>=0.8
+python-pptx>=0.6.21
+unstructured>=0.11.0
+beautifulsoup4>=4.12.0
+
+# Utilities
+pyyaml>=6.0
+requests>=2.31.0
+tqdm>=4.66.0
