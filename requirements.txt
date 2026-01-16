@@ -15,6 +15,15 @@ python-pptx>=0.6.21
 unstructured>=0.11.0
 beautifulsoup4>=4.12.0
 
+# Web search - NEW
+duckduckgo-search>=4.0.0
+
+# Export and generation - NEW
+markdown>=3.5.0
+fpdf2>=2.7.0
+Pillow>=10.0.0
+httpx>=0.25.0
+
 # Utilities
 pyyaml>=6.0
 requests>=2.31.0

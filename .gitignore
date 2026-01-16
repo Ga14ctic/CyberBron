@@ -13,6 +13,13 @@ data/*
 # Ignore user-specific conversation logs
 conversations/
 
+# Ignore user-generated content - NEW
+notes/
+flashcards/
+memory/
+output/
+exports/
+
 # Ignore virtual environment folders (if you ever use them)
 venv/
 .venv/

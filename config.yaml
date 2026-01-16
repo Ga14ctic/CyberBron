@@ -2,41 +2,102 @@
 
 # Model Settings
 models:
-  llm: "llama3:8b-instruct-q8_0"
+  llm: "mistral:latest"  # Changed from llama3 to mistral as required
   embeddings: "nomic-embed-text"
   temperature: 0.7
-  
+
 # Ollama Settings
 ollama:
   base_url: "http://localhost:11434"
-  timeout: 120  # seconds
+  timeout: 120
 
 # RAG Settings
 rag:
   chunk_size: 1000
   chunk_overlap: 200
   retrieval_k: 5
-  max_history_messages: 20  # Limit history to prevent memory issues
+  max_history_messages: 20
+  hybrid_mode: true  # NEW: Use both docs and model knowledge
+
+# Search Settings - NEW
+search:
+  enabled: true
+  provider: "duckduckgo"
+  max_results: 5
+  auto_search_keywords:
+    - "latest"
+    - "recent"
+    - "current"
+    - "2024"
+    - "2025"
+    - "2026"
+    - "CVE-"
 
 # Response Settings
 response:
-  min_words: 300  # Reduced from 500 for better efficiency
+  min_words: 300
   streaming: true
-  
+  show_sources: true  # NEW: Show source citations
+
+# Memory Settings - NEW
+memory:
+  long_term_enabled: true
+  summarize_after_messages: 30
+  remember_topics: true
+
+# Notes Settings - NEW
+notes:
+  storage: "json"
+  auto_tag: true
+  default_folder: "General"
+
+# Flashcards Settings - NEW
+flashcards:
+  cards_per_generation: 10
+  spaced_repetition: true
+
+# Quiz Settings - NEW
+quiz:
+  questions_per_quiz: 10
+  default_difficulty: "medium"
+  show_explanations: true
+
+# Presentation Settings - NEW (SlideBron integration)
+presentations:
+  default_slides: 7
+  default_theme: "professional"
+  enable_images: true
+  enable_search: true
+  output_dir: "output"
+
 # Persona Settings
 persona:
   name: "CyberBron"
-  humor_level: "moderate"  # low, moderate, high
-  min_jokes_per_response: 2  # Reduced from 4 for less forced humor
+  humor_level: "moderate"
+  min_jokes_per_response: 1  # Reduced for better balance
 
 # Paths
 paths:
   data: "data"
   chroma_db: "chroma_db"
   conversations: "conversations"
+  notes: "notes"  # NEW
+  flashcards: "flashcards"  # NEW
+  memory: "memory"  # NEW
+  output: "output"  # NEW
+  exports: "exports"  # NEW
 
-# Web Scraping (for ingest.py)
+# Web Sources for Ingestion and Search
 web_sources:
   - "https://owasp.org/www-project-top-ten/"
   - "https://www.cisa.gov/shields-up"
   - "https://attack.mitre.org/techniques/enterprise/"
+  - "https://cve.mitre.org/"
+  - "https://www.nist.gov/cyberframework"
+  - "https://cheatsheetseries.owasp.org/"
+
+# UI Settings - NEW
+ui:
+  theme: "dark"
+  accent_color: "#00ff88"
+  show_sidebar: true
