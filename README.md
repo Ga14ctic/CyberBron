@@ -1,185 +1,306 @@
-# CyberBron - T-Level AI Assistant
+# CyberBron - AI-Powered Cybersecurity Study Platform 🛡️
 
-A personalized, local AI study assistant built to support a Cybersecurity T-Level curriculum. This application runs entirely on your local machine, ensuring privacy and full control over your data. It leverages a powerful local LLM via Ollama and uses Retrieval-Augmented Generation (RAG) to provide answers based on your own course notes, textbooks, and documents.
+A comprehensive, local AI study platform built specifically for T-Level Cybersecurity students. CyberBron combines document-based RAG, real-time web search, intelligent memory, and AI-powered study tools to create the ultimate cybersecurity learning companion.
 
-## 🚀 Key Features
+## 🌟 Key Features
 
-*   **🧠 Conversational Memory:** Remembers the context of your conversation for intelligent, human-like follow-up questions (with configurable history limit to optimize memory).
-*   **📚 Custom Knowledge Base:** Ingests your personal study materials, including PDFs, Word documents, PowerPoint slides, and Markdown notes.
-*   **🔒 100% Local & Private:** Your documents and conversations never leave your computer. Powered by Ollama.
-*   **💬 Multi-Conversation UI:** Create, save, switch between, and delete multiple chat sessions, all stored locally.
-*   **💻 GPU Accelerated:** Optimized to run on NVIDIA GPUs for significantly faster response times.
-*   **⚙️ Configurable Settings:** Easily customize model parameters, chunk sizes, retrieval settings, and more via `config.yaml`.
-*   **🛡️ Health Checks:** Automatic verification that Ollama is running before attempting to use the assistant.
-*   **📊 Progress Indicators:** Visual feedback during document ingestion with detailed logging.
-*   **🔧 Advanced Controls:** Adjustable retrieval parameters (number of documents to retrieve) directly in the UI.
-*   **🏀 Personality:** A unique "CyberBron" persona, blending expert cybersecurity knowledge with LeBron James-inspired humor and motivation.
+### 💬 **Intelligent Chat Assistant**
+- **Hybrid Knowledge Mode**: Combines your course documents, AI knowledge, and web search
+- **Conversational Memory**: Remembers context throughout your conversation
+- **Auto Web Search**: Automatically searches for current events, CVEs, and recent threats
+- **Source Citations**: Clear indicators showing where information comes from (📚 docs, 🧠 AI, 🌐 web)
+- **Quick Actions**: Save responses to notes, generate flashcards, or create presentations
 
-## 🛠️ Tech Stack
+### 📝 **Complete Notes Management**
+- Create, edit, and organize study notes
+- Search across all notes with full-text search
+- Tag and folder organization system
+- Export notes to Markdown
+- AI-powered note features (summarization, flashcard generation)
+- Save conversation responses directly to notes
 
-*   **LLM Server:** [Ollama](https://ollama.com/)
-*   **LLM Model:** `llama3:8b-instruct-q8_0` (or your preferred model)
-*   **UI Framework:** Streamlit
-*   **AI Orchestration:** LangChain
-*   **Vector Store:** ChromaDB (local)
-*   **Embedding Model:** `nomic-embed-text`
-*   **Core Language:** Python 3
+### 🎴 **Flashcard System with Spaced Repetition**
+- Create flashcards manually or generate with AI
+- Spaced repetition algorithm (Easy: 7 days, Medium: 3 days, Hard: 1 day)
+- Deck management and organization
+- Study mode with card flipping interface
+- Generate flashcards from notes or conversations
+- Track review progress and mastery
 
-## ⚙️ Setup & Installation
+### 📊 **Quiz Mode with AI Grading**
+- Generate quizzes from your study materials using AI
+- Multiple choice, true/false, and short answer questions
+- AI-powered grading for short answers
+- Detailed explanations for each question
+- Score tracking and history
+- Review incorrect answers with feedback
 
-Follow these steps to get CyberBron running on your local machine.
+### 🎯 **Presentation Generator**
+- Generate professional PowerPoint presentations
+- Multiple themes: Professional, Modern, Minimal, Dark (cybersecurity theme)
+- Optional web research for additional content
+- Configurable number of slides and detail level
+- Download presentations directly
+- Based on SlideBron architecture
+
+### 🌐 **Web Search Integration**
+- DuckDuckGo integration for real-time information
+- Automatic search triggers for keywords like "latest", "recent", "CVE-"
+- Cybersecurity-focused search with curated sources
+- Search results displayed with sources
+
+### 🧠 **Long-term Memory System**
+- Remember user preferences and learning style
+- Track frequently studied topics
+- Store learned facts and corrections
+- Cross-session memory persistence
+- Progress tracking across all features
+
+### 🎨 **Modern Cybersecurity UI**
+- Dark theme with green/cyan accents
+- Tabbed interface for easy navigation
+- Status indicators for system health
+- Responsive design
+- Custom CSS styling for professional look
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-*   Python 3.9+
-*   [Git](https://git-scm.com/downloads)
-*   An NVIDIA GPU with CUDA drivers installed (recommended for GPU acceleration, but CPU works too)
-*   [Ollama](https://ollama.com/) installed and running
+- Python 3.9 or higher
+- [Ollama](https://ollama.com/) installed and running
+- 8GB+ RAM recommended
+- (Optional) NVIDIA GPU with CUDA for faster processing
 
-### 1. Clone the Repository
+### Installation
 
-Open your terminal and clone this repository to your local machine:
+1. **Clone the repository**
 ```bash
-git clone https://github.com/ga14ctic/CyberBron.git
+git clone https://github.com/Ga14ctic/CyberBron.git
 cd CyberBron
 ```
 
-### 2. Install Dependencies
-
-Install all the required Python packages using the `requirements.txt` file:
+2. **Install Python dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set Up Ollama
+3. **Set up Ollama and pull required models**
+```bash
+# Install Ollama from https://ollama.com/
 
-1.  Download and install **[Ollama](https://ollama.com/)** for your operating system.
-2.  Start the Ollama service (it should run in the background).
-3.  Pull the necessary models. This will download the main chat model and the embedding model.
-    ```bash
-    ollama pull llama3:8b-instruct-q8_0
-    ollama pull nomic-embed-text
-    ```
+# Pull the Mistral model (recommended)
+ollama pull mistral:latest
 
-### 4. Configure Settings (Optional)
+# Pull the embedding model
+ollama pull nomic-embed-text
+```
 
-CyberBron comes with sensible defaults in `config.yaml`. You can customize:
-*   Model names and parameters
-*   Chunk sizes for document processing
-*   Number of documents to retrieve (k parameter)
-*   Response length preferences
-*   Humor level and personality settings
-*   Web sources for ingestion
+4. **Build your knowledge base**
+```bash
+# Add your study materials to the data/ directory
+mkdir -p data
+# Copy your PDFs, DOCX, PPTX, MD, TXT files to data/
 
-Edit `config.yaml` to adjust these settings, or create `config.local.yaml` for personal overrides (this file is ignored by git).
+# Run the ingestion script
+python ingest.py
+```
 
-### 5. Build Your Knowledge Base
-
-1.  Create a `data/` folder if it doesn't exist:
-    ```bash
-    mkdir -p data
-    ```
-2.  Add your personal study documents (`.pdf`, `.docx`, `.pptx`, `.md`, `.txt`, etc.) into the `data/` folder.
-3.  Run the ingestion script to process your documents and build the local vector database:
-    ```bash
-    python ingest.py
-    ```
-    This will create a `chroma_db/` folder containing your knowledge base. The script includes:
-    *   Progress bars showing ingestion status
-    *   Batch processing to handle large document sets efficiently
-    *   Error handling for individual file failures
-    *   Detailed logging to `ingest.log`
-
-### 6. Run the Application
-
-Make sure the Ollama application is running in the background. Then, launch the Streamlit app:
+5. **Launch CyberBron**
 ```bash
 streamlit run app.py
 ```
-Your browser should open with the CyberBron chat interface ready to go!
 
-### Troubleshooting
+Your browser should automatically open to `http://localhost:8501`
 
-*   **"Ollama is not running"**: Ensure Ollama is installed and the service is started. Check that it's accessible at `http://localhost:11434`.
-*   **"Vector database not found"**: Run `python ingest.py` to build your knowledge base first.
-*   **Memory issues**: Adjust `chunk_size` and `max_history_messages` in `config.yaml` to lower values.
-*   **Check logs**: Review `cyberbron.log` and `ingest.log` for detailed error information.
-
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
-.
-├── 📄 app.py                # Main Streamlit application with RAG logic
-├── 📄 ingest.py             # Document processing and vector store creation
-├── 📄 config.yaml           # Configuration file for all settings
-├── 📄 requirements.txt      # Python dependencies
-├── 📁 data/                 # Your PDF, DOCX, PPTX, MD course files
-├── 📁 conversations/        # Saved chat session JSON files (gitignored)
-├── 📁 chroma_db/           # Vector database storage (gitignored)
-├── 📄 cyberbron.log        # Application logs (gitignored)
-├── 📄 ingest.log           # Ingestion logs (gitignored)
-└── 📄 .gitignore           # Git ignore rules
+CyberBron/
+├── app.py                          # Main Streamlit application
+├── ingest.py                       # Document ingestion script
+├── config.yaml                     # Configuration file
+├── requirements.txt                # Python dependencies
+│
+├── services/                       # Backend services
+│   ├── search_service.py          # DuckDuckGo web search
+│   ├── memory_service.py          # Long-term memory
+│   ├── notes_service.py           # Notes CRUD operations
+│   ├── flashcard_service.py       # Flashcard management
+│   ├── quiz_service.py            # Quiz management
+│   └── presentation_service.py    # Presentation requests
+│
+├── generators/                     # AI-powered generators
+│   ├── pptx_generator.py          # PowerPoint generation
+│   ├── flashcard_generator.py     # AI flashcard generation
+│   └── quiz_generator.py          # AI quiz generation
+│
+├── ui/                            # UI components
+│   ├── styles.py                  # Custom CSS theme
+│   ├── chat_tab.py                # Chat interface
+│   ├── notes_tab.py               # Notes management UI
+│   ├── flashcards_tab.py          # Flashcard study UI
+│   ├── quiz_tab.py                # Quiz interface
+│   └── presentations_tab.py       # Presentation generator UI
+│
+├── data/                          # Your course materials (gitignored)
+├── chroma_db/                     # Vector database (gitignored)
+├── conversations/                 # Chat history (gitignored)
+├── notes/                         # User notes (gitignored)
+├── flashcards/                    # Flashcard storage (gitignored)
+├── memory/                        # Long-term memory (gitignored)
+├── output/                        # Generated presentations (gitignored)
+└── exports/                       # Exported notes (gitignored)
 ```
 
-## 🎯 Usage Tips
+## ⚙️ Configuration
 
-### In the Chat Interface
+Edit `config.yaml` to customize CyberBron:
 
-*   **New Conversation**: Click the "➕ New Conversation" button in the sidebar
-*   **Delete Conversations**: Use the 🗑️ button next to any conversation
-*   **Adjust Retrieval**: Click the ⚙️ icon in the sidebar to adjust how many documents are retrieved (1-10)
-*   **Long Responses**: CyberBron is configured to provide detailed, thorough answers - perfect for learning!
+### Key Settings
 
-### Managing Your Knowledge Base
+```yaml
+models:
+  llm: "mistral:latest"              # Main language model
+  embeddings: "nomic-embed-text"     # Embedding model
+  temperature: 0.7                    # Response creativity (0-1)
 
-*   Add new documents to `data/` and re-run `python ingest.py`
-*   The ingestion process is idempotent - it will rebuild the entire knowledge base
-*   Check `ingest.log` for detailed information about document processing
+search:
+  enabled: true                       # Enable/disable web search
+  max_results: 5                      # Number of search results
 
-### Customizing CyberBron
+rag:
+  retrieval_k: 5                      # Documents to retrieve
+  max_history_messages: 20            # Conversation context length
+  hybrid_mode: true                   # Use docs + AI knowledge + web
 
-Edit `config.yaml` to customize:
-*   **Model**: Switch to different Ollama models (e.g., `llama2`, `mistral`, `codellama`)
-*   **Personality**: Adjust humor level and joke frequency
-*   **Performance**: Tune chunk sizes, retrieval count, and history limits
-*   **Web Sources**: Add or remove URLs to scrape during ingestion
+notes:
+  auto_tag: true                      # Auto-tag notes with AI
+  default_folder: "General"           # Default folder for new notes
 
-## 🔧 Configuration Reference
+flashcards:
+  cards_per_generation: 10            # Default cards to generate
+  spaced_repetition: true             # Enable spaced repetition
 
-Key settings in `config.yaml`:
+quiz:
+  questions_per_quiz: 10              # Default quiz length
+  default_difficulty: "medium"        # easy, medium, hard
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `models.llm` | `llama3:8b-instruct-q8_0` | Main language model |
-| `models.embeddings` | `nomic-embed-text` | Embedding model for RAG |
-| `models.temperature` | `0.7` | Response creativity (0-1) |
-| `rag.chunk_size` | `1000` | Document chunk size in characters |
-| `rag.chunk_overlap` | `200` | Overlap between chunks |
-| `rag.retrieval_k` | `5` | Number of documents to retrieve |
-| `rag.max_history_messages` | `20` | Conversation history limit |
-| `response.min_words` | `300` | Target response length |
-| `persona.min_jokes_per_response` | `2` | Basketball jokes per answer |
+presentations:
+  default_slides: 7                   # Default number of slides
+  default_theme: "professional"       # Theme selection
+  enable_search: true                 # Web search for content
+```
 
-## 📈 Recent Improvements
+## 🎯 Usage Guide
 
-### Version 2.0 Updates
+### Chat Tab
+1. Ask questions about cybersecurity topics
+2. CyberBron will search your documents, use AI knowledge, and web search
+3. Use quick action buttons to save responses to notes or generate flashcards
+4. Web search automatically triggers for current events and CVEs
 
--   ✅ **Configuration System:** All settings now manageable via `config.yaml`
--   ✅ **Health Checks:** Automatic Ollama connectivity verification
--   ✅ **Better Error Handling:** Graceful handling of file loading, JSON parsing, and network errors
--   ✅ **Memory Optimization:** Batch processing for large document sets, limited conversation history
--   ✅ **Progress Indicators:** Visual feedback with tqdm during document ingestion
--   ✅ **Advanced Logging:** Detailed logs in `cyberbron.log` and `ingest.log`
--   ✅ **Conversation Management:** Delete conversations directly from the UI
--   ✅ **Configurable Retrieval:** Adjust the number of retrieved documents in real-time
--   ✅ **Input Validation:** Prevents empty messages and provides clear error messages
--   ✅ **Improved Prompt:** Safer, more balanced personality with adjustable humor levels
+### Notes Tab
+1. Click "➕ New Note" to create a note
+2. Organize with folders and tags
+3. Search notes using the search bar
+4. Export notes to Markdown
+5. Generate flashcards from any note
 
-### Future Improvements (Roadmap)
+### Flashcards Tab
+- **Study**: Review flashcards with spaced repetition
+- **Create**: Make cards manually or generate with AI
+- **Decks**: Manage your flashcard collections
 
--   [ ] **True Streaming Responses:** Implement token-by-token streaming for faster perceived response times
--   [ ] **Web Search Agent:** Integrate DuckDuckGo or similar for current events
--   [ ] **Citation Display:** Show which documents were used to answer questions
--   [ ] **Multi-Model Support:** Easy switching between different LLMs in the UI
--   [ ] **Export Conversations:** Save chats as PDF or Markdown
--   [ ] **Voice Input:** Integrate speech-to-text for hands-free questions
+### Quiz Tab
+- **Take Quiz**: Select and complete a quiz
+- **Generate Quiz**: Create quizzes from your study materials
+- **Results**: View your quiz history and progress
+
+### Presentations Tab
+1. Enter your topic
+2. Configure slides, theme, and options
+3. Generate presentation with AI
+4. Download the .pptx file
+5. Optional web research enhances content
+
+## 🔧 Advanced Features
+
+### Web Search Keywords
+Automatic web search triggers for:
+- "latest", "recent", "current"
+- Years: "2024", "2025", "2026"
+- CVE identifiers: "CVE-"
+
+### Memory System
+CyberBron remembers:
+- Your frequently studied topics
+- Learning preferences
+- Quiz scores and progress
+- Flashcard mastery levels
+
+### Curated Cybersecurity Sources
+Built-in knowledge of:
+- OWASP Top 10
+- CISA alerts
+- MITRE ATT&CK
+- CVE database
+- NIST Cybersecurity Framework
+
+## 🎨 Themes
+
+### Available Presentation Themes
+- **Professional**: Classic corporate style
+- **Modern**: Clean, contemporary design
+- **Minimal**: Simple and elegant
+- **Dark**: Cybersecurity-themed with green accents
+
+### UI Theme
+Dark mode with cybersecurity aesthetics:
+- Primary: Cyber Green (#00ff88)
+- Accent: Cyber Cyan (#00d4ff)
+- Background: Dark (#0d1117)
+
+## 🚧 Troubleshooting
+
+### "Ollama is not running"
+- Start Ollama service
+- Check it's accessible at `http://localhost:11434`
+- Test with: `curl http://localhost:11434/api/tags`
+
+### "Vector database not found"
+- Run `python ingest.py` to build your knowledge base
+- Ensure you have documents in the `data/` directory
+
+### "Model not found"
+- Download the model: `ollama pull mistral:latest`
+- Or use a different model in `config.yaml`
+
+### Web search not working
+- Check internet connection
+- DuckDuckGo may have rate limits
+- Disable in config if needed: `search.enabled: false`
+
+### Memory/Performance issues
+- Reduce `retrieval_k` in config (try 3 instead of 5)
+- Lower `max_history_messages` (try 10 instead of 20)
+- Use a smaller model like `mistral:7b`
+
+## 🤝 Contributing
+
+This is a student project for T-Level Cybersecurity. Contributions, suggestions, and feedback are welcome!
+
+## 🙏 Acknowledgments
+
+- Built with [Streamlit](https://streamlit.io/)
+- Powered by [Ollama](https://ollama.com/) and Mistral AI
+- RAG implementation using [LangChain](https://langchain.com/)
+- Vector storage with [ChromaDB](https://www.trychroma.com/)
+- Web search via [DuckDuckGo](https://duckduckgo.com/)
+- Presentation generation inspired by SlideBron
+
+---
+
+**Built with ❤️ for T-Level Cybersecurity Students**
+
+*Transform your cybersecurity studies with AI-powered learning!* 🛡️
