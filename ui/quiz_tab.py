@@ -7,13 +7,14 @@ from services.quiz_service import QuizService
 from generators.quiz_generator import QuizGenerator
 
 
-def render_quiz_tab(quiz_service: QuizService, quiz_generator: QuizGenerator):
+def render_quiz_tab(quiz_service: QuizService, quiz_generator: QuizGenerator, notes_service=None):
     """
     Render the quiz tab.
     
     Args:
         quiz_service: QuizService instance
         quiz_generator: QuizGenerator instance
+        notes_service: Optional NotesService for selecting notes
     """
     st.header("📊 Quiz Mode")
     
@@ -24,7 +25,7 @@ def render_quiz_tab(quiz_service: QuizService, quiz_generator: QuizGenerator):
         render_take_quiz(quiz_service)
     
     with tab2:
-        render_generate_quiz(quiz_service, quiz_generator)
+        render_generate_quiz(quiz_service, quiz_generator, notes_service)
     
     with tab3:
         render_quiz_results(quiz_service)
@@ -190,20 +191,59 @@ def display_quiz_results(quiz_service: QuizService, quiz: dict, user_answers: di
         st.rerun()
 
 
-def render_generate_quiz(quiz_service: QuizService, quiz_generator: QuizGenerator):
+def render_generate_quiz(quiz_service: QuizService, quiz_generator: QuizGenerator, notes_service=None):
     """Render quiz generation interface."""
     st.subheader("Generate New Quiz")
     
     st.markdown("Create a quiz from your notes or study materials using AI.")
     
+    # Check if coming from notes tab
+    prefill_note = None
+    if st.session_state.get("generate_quiz_from_note") and notes_service:
+        note_id = st.session_state.generate_quiz_from_note
+        prefill_note = notes_service.get_note(note_id)
+        if prefill_note:
+            st.info(f"📝 Ready to generate quiz from note: **{prefill_note['title']}**")
+    
     with st.form("generate_quiz"):
         title = st.text_input("Quiz Title*", placeholder="e.g., Network Security Basics")
         
-        text_input = st.text_area(
-            "Paste content to generate quiz from*",
-            height=200,
-            placeholder="Paste your study notes or textbook content here..."
+        # Content source selection
+        default_source = "Select from Notes" if prefill_note else "Paste Text"
+        content_source = st.radio(
+            "Content Source",
+            ["Paste Text", "Select from Notes"],
+            index=1 if prefill_note else 0,
+            horizontal=True
         )
+        
+        text_input = ""
+        if content_source == "Paste Text":
+            text_input = st.text_area(
+                "Paste content to generate quiz from*",
+                height=200,
+                placeholder="Paste your study notes or textbook content here..."
+            )
+        else:
+            if notes_service:
+                notes = notes_service.get_all_notes()
+                if notes:
+                    note_options = {f"{note['title']} ({note.get('folder', 'General')})": note for note in notes}
+                    default_idx = 0
+                    if prefill_note:
+                        prefill_key = f"{prefill_note['title']} ({prefill_note.get('folder', 'General')})"
+                        if prefill_key in note_options:
+                            default_idx = list(note_options.keys()).index(prefill_key)
+                    
+                    selected_note_name = st.selectbox("Select Note*", list(note_options.keys()), index=default_idx)
+                    if selected_note_name:
+                        selected_note = note_options[selected_note_name]
+                        text_input = selected_note['content']
+                        st.info(f"📝 Using note: **{selected_note['title']}**")
+                else:
+                    st.warning("No notes available. Create notes first or paste text instead.")
+            else:
+                st.warning("Notes service not available. Please paste text instead.")
         
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -232,6 +272,9 @@ def render_generate_quiz(quiz_service: QuizService, quiz_generator: QuizGenerato
                         difficulty=difficulty
                     )
                     st.success(f"✅ Quiz '{title}' created with {len(questions)} questions!")
+                    # Clear the prefill flag
+                    if "generate_quiz_from_note" in st.session_state:
+                        st.session_state.generate_quiz_from_note = None
                 else:
                     st.error("Failed to generate quiz. Please try again with different content.")
 

@@ -127,8 +127,11 @@ def render_presentations_tab(presentation_service: PresentationService, llm, sea
                             st.markdown(f"### {topic}")
                             for i, slide in enumerate(slides_content, 1):
                                 st.markdown(f"#### Slide {i+1}: {slide['title']}")
-                                for point in slide['content']:
-                                    st.markdown(f"- {point}")
+                                if isinstance(slide['content'], str):
+                                    st.write(slide['content'])
+                                elif isinstance(slide['content'], list):
+                                    for point in slide['content']:
+                                        st.markdown(f"- {point}")
                                 st.divider()
                         
                         # Download button
@@ -217,9 +220,9 @@ def generate_presentation_content(
     
     # Construct prompt
     detail_instructions = {
-        "Brief": "Keep each slide concise with 3-4 bullet points.",
-        "Moderate": "Provide 4-5 bullet points per slide with good detail.",
-        "Detailed": "Provide 5-6 detailed bullet points per slide with comprehensive information."
+        "Brief": "Write 1-2 concise paragraphs (3-4 sentences each) explaining the key concepts.",
+        "Moderate": "Write 2-3 well-developed paragraphs (4-5 sentences each) with clear explanations and examples.",
+        "Detailed": "Write 3-4 comprehensive paragraphs (5-6 sentences each) with in-depth analysis, examples, and thorough coverage."
     }
     
     content_instruction = ""
@@ -231,7 +234,9 @@ def generate_presentation_content(
 Generate exactly {num_slides} content slides (excluding title and closing slides).
 {detail_instructions[detail_level]}
 
-Each slide should be focused on cybersecurity concepts relevant to T-Level students.
+IMPORTANT: Do NOT use bullet points. Write full paragraphs that go into depth on each topic.
+Each slide should have well-written, flowing paragraphs that thoroughly explain the concept.
+The content should be suitable for T-Level cybersecurity students.
 {content_instruction}
 {search_context}
 
@@ -239,12 +244,12 @@ Format your response as a JSON array with this structure:
 [
   {{
     "title": "Slide Title",
-    "content": ["Point 1", "Point 2", "Point 3", ...]
+    "content": "Full paragraph text explaining the topic in depth. This should be multiple sentences that flow naturally and provide comprehensive information about the subject matter."
   }}
 ]
 
-Make sure each slide has a clear title and 3-6 bullet points.
-Focus on clarity, accuracy, and educational value.
+Make sure each slide has a clear title and detailed paragraph content (not bullet points).
+Focus on clarity, depth, accuracy, and educational value.
 """
     
     try:
@@ -263,7 +268,11 @@ Focus on clarity, accuracy, and educational value.
             valid_slides = []
             for slide in slides[:num_slides]:  # Limit to requested number
                 if isinstance(slide, dict) and 'title' in slide and 'content' in slide:
-                    if isinstance(slide['content'], list):
+                    # Content can be either a string (paragraph) or list (for backward compatibility)
+                    if isinstance(slide['content'], (str, list)):
+                        # Convert list to paragraph if needed
+                        if isinstance(slide['content'], list):
+                            slide['content'] = ' '.join(slide['content'])
                         valid_slides.append(slide)
             
             return valid_slides

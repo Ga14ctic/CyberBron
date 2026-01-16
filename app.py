@@ -487,11 +487,11 @@ def main():
     
     # Flashcards Tab
     with tabs[2]:
-        render_flashcards_tab(services["flashcard"], flashcard_generator)
+        render_flashcards_tab(services["flashcard"], flashcard_generator, services["notes"])
     
     # Quiz Tab
     with tabs[3]:
-        render_quiz_tab(services["quiz"], quiz_generator)
+        render_quiz_tab(services["quiz"], quiz_generator, services["notes"])
     
     # Presentations Tab
     with tabs[4]:

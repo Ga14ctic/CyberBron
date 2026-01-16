@@ -137,7 +137,7 @@ class PPTXGenerator:
         p.font.size = Pt(18)
         p.font.color.rgb = self.theme["text_color"]
     
-    def _add_content_slide(self, prs, title: str, content: list):
+    def _add_content_slide(self, prs, title: str, content):
         """Add content slide to presentation."""
         slide_layout = prs.slide_layouts[6]  # Blank layout
         slide = prs.slides.add_slide(slide_layout)
@@ -158,17 +158,27 @@ class PPTXGenerator:
         p.font.bold = True
         p.font.color.rgb = self.theme["title_color"]
         
-        # Add content
+        # Add content - handle both paragraph strings and lists
         content_box = slide.shapes.add_textbox(Inches(0.5), Inches(1.8), Inches(9), Inches(5))
         content_frame = content_box.text_frame
         content_frame.word_wrap = True
         
-        for item in content:
-            p = content_frame.add_paragraph()
-            p.text = f"• {item}"
-            p.font.size = Pt(18)
+        if isinstance(content, str):
+            # Full paragraph content
+            content_frame.text = content
+            p = content_frame.paragraphs[0]
+            p.font.size = Pt(16)
             p.font.color.rgb = self.theme["text_color"]
+            p.line_spacing = 1.5
             p.space_after = Pt(12)
+        elif isinstance(content, list):
+            # Legacy bullet point support
+            for item in content:
+                p = content_frame.add_paragraph()
+                p.text = f"• {item}"
+                p.font.size = Pt(18)
+                p.font.color.rgb = self.theme["text_color"]
+                p.space_after = Pt(12)
     
     def _add_closing_slide(self, prs, title: str):
         """Add closing slide to presentation."""

@@ -16,6 +16,29 @@ def render_notes_tab(notes_service: NotesService):
     """
     st.header("📝 Notes Manager")
     
+    st.markdown("*Create notes, generate flashcards & quizzes with one click*")
+    
+    # Quick create note (always visible at top)
+    with st.expander("➕ Quick Create Note", expanded=False):
+        with st.form("quick_note"):
+            qn_title = st.text_input("Title*")
+            qn_content = st.text_area("Content*", height=100)
+            
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                qn_submit = st.form_submit_button("💾 Save", use_container_width=True)
+            
+            if qn_submit and qn_title and qn_content:
+                note = notes_service.create_note(
+                    title=qn_title,
+                    content=qn_content,
+                    folder="General"
+                )
+                st.success(f"✅ Note saved!")
+                st.rerun()
+    
+    st.divider()
+    
     # Sidebar for notes actions
     col1, col2 = st.columns([2, 1])
     
@@ -117,27 +140,37 @@ def render_notes_tab(notes_service: NotesService):
                 # Note content
                 st.markdown(note['content'])
                 
-                # Actions
-                col1, col2, col3, col4 = st.columns(4)
+                st.divider()
+                
+                # Quick Actions Row
+                st.markdown("**Quick Actions:**")
+                col1, col2, col3, col4, col5 = st.columns(5)
                 
                 with col1:
-                    if st.button("✏️ Edit", key=f"edit_{note['id']}"):
+                    if st.button("✏️ Edit", key=f"edit_{note['id']}", use_container_width=True):
                         st.session_state.notes_editing = note['id']
                         st.rerun()
                 
                 with col2:
-                    if st.button("📥 Export MD", key=f"export_{note['id']}"):
-                        filepath = notes_service.export_note_to_markdown(note['id'])
-                        if filepath:
-                            st.success(f"Exported to {filepath}")
+                    if st.button("🎴 Flashcards", key=f"flash_{note['id']}", use_container_width=True):
+                        st.session_state.generate_flashcards_from_note = note['id']
+                        st.session_state.active_tab = "Flashcards"
+                        st.success("✅ Navigate to Flashcards tab to generate!")
                 
                 with col3:
-                    if st.button("🎴 Flashcards", key=f"flash_{note['id']}"):
-                        st.session_state.generate_flashcards_from_note = note['id']
-                        st.info("Flashcard generation will be available in Flashcards tab")
+                    if st.button("📊 Quiz", key=f"quiz_{note['id']}", use_container_width=True):
+                        st.session_state.generate_quiz_from_note = note['id']
+                        st.session_state.active_tab = "Quiz"
+                        st.success("✅ Navigate to Quiz tab to generate!")
                 
                 with col4:
-                    if st.button("🗑️ Delete", key=f"delete_{note['id']}"):
+                    if st.button("📥 Export", key=f"export_{note['id']}", use_container_width=True):
+                        filepath = notes_service.export_note_to_markdown(note['id'])
+                        if filepath:
+                            st.success(f"Exported!")
+                
+                with col5:
+                    if st.button("🗑️ Delete", key=f"delete_{note['id']}", use_container_width=True):
                         if notes_service.delete_note(note['id']):
                             st.success("Note deleted!")
                             st.rerun()

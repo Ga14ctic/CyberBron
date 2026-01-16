@@ -7,13 +7,14 @@ from services.flashcard_service import FlashcardService
 from generators.flashcard_generator import FlashcardGenerator
 
 
-def render_flashcards_tab(flashcard_service: FlashcardService, flashcard_generator: FlashcardGenerator):
+def render_flashcards_tab(flashcard_service: FlashcardService, flashcard_generator: FlashcardGenerator, notes_service=None):
     """
     Render the flashcards tab.
     
     Args:
         flashcard_service: FlashcardService instance
         flashcard_generator: FlashcardGenerator instance
+        notes_service: Optional NotesService for generating from notes
     """
     st.header("🎴 Flashcards")
     
@@ -24,7 +25,7 @@ def render_flashcards_tab(flashcard_service: FlashcardService, flashcard_generat
         render_study_mode(flashcard_service)
     
     with tab2:
-        render_create_flashcard(flashcard_service, flashcard_generator)
+        render_create_flashcard(flashcard_service, flashcard_generator, notes_service)
     
     with tab3:
         render_deck_management(flashcard_service)
@@ -144,9 +145,58 @@ def next_card():
     st.rerun()
 
 
-def render_create_flashcard(flashcard_service: FlashcardService, flashcard_generator: FlashcardGenerator):
+def render_create_flashcard(flashcard_service: FlashcardService, flashcard_generator: FlashcardGenerator, notes_service=None):
     """Render flashcard creation interface."""
     st.subheader("Create Flashcards")
+    
+    # Check if coming from notes tab
+    if st.session_state.get("generate_flashcards_from_note") and notes_service:
+        note_id = st.session_state.generate_flashcards_from_note
+        note = notes_service.get_note(note_id)
+        
+        if note:
+            st.info(f"📝 Generating flashcards from note: **{note['title']}**")
+            
+            with st.form("generate_from_note"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    num_cards = st.number_input("Number of cards", min_value=1, max_value=20, value=10)
+                with col2:
+                    deck = st.text_input("Deck", value=note.get('folder', 'General'))
+                
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    generate = st.form_submit_button("🤖 Generate", use_container_width=True)
+                with col2:
+                    cancel = st.form_submit_button("Cancel", use_container_width=True)
+                
+                if generate:
+                    with st.spinner("Generating flashcards from your note..."):
+                        flashcards = flashcard_generator.generate_from_text(
+                            note['content'], 
+                            num_cards, 
+                            note['title']
+                        )
+                        
+                        if flashcards:
+                            for card in flashcards:
+                                flashcard_service.create_flashcard(
+                                    question=card['question'],
+                                    answer=card['answer'],
+                                    deck=deck,
+                                    topic=note['title'],
+                                    source="note"
+                                )
+                            st.success(f"✅ Generated {len(flashcards)} flashcards from '{note['title']}'!")
+                            st.session_state.generate_flashcards_from_note = None
+                        else:
+                            st.error("Failed to generate flashcards. Please try again.")
+                
+                if cancel:
+                    st.session_state.generate_flashcards_from_note = None
+                    st.rerun()
+            
+            st.divider()
     
     create_mode = st.radio("Creation Mode", ["Manual", "AI Generate from Text"])
     
@@ -176,7 +226,30 @@ def render_create_flashcard(flashcard_service: FlashcardService, flashcard_gener
         st.markdown("Generate flashcards from your notes or text using AI.")
         
         with st.form("generate_flashcards"):
-            text_input = st.text_area("Paste text content here", height=200)
+            # Content source selection
+            content_source = st.radio(
+                "Content Source",
+                ["Paste Text", "Select from Notes"],
+                horizontal=True
+            )
+            
+            text_input = ""
+            if content_source == "Paste Text":
+                text_input = st.text_area("Paste text content here", height=200)
+            else:
+                if notes_service:
+                    notes = notes_service.get_all_notes()
+                    if notes:
+                        note_options = {f"{note['title']} ({note.get('folder', 'General')})": note for note in notes}
+                        selected_note_name = st.selectbox("Select Note", list(note_options.keys()))
+                        if selected_note_name:
+                            selected_note = note_options[selected_note_name]
+                            text_input = selected_note['content']
+                            st.info(f"📝 Using note: **{selected_note['title']}**")
+                    else:
+                        st.warning("No notes available. Create notes first or paste text instead.")
+                else:
+                    st.warning("Notes service not available. Please paste text instead.")
             
             col1, col2, col3 = st.columns(3)
             with col1:
