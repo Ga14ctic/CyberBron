@@ -314,9 +314,9 @@ transform: rotateY(180deg);
 ## Files Modified/Created
 
 ### New Files
-1. `/frontend/src/components/Flashcards/FlashcardStudyEnhanced.tsx` (420 lines)
-2. `/frontend/src/components/Notes/NoteEditorEnhanced.tsx` (340 lines)
-3. `/frontend/src/components/Admin/AdminDashboard.tsx` (230 lines)
+1. `/frontend/src/components/Flashcards/FlashcardStudyEnhanced.tsx` (364 lines)
+2. `/frontend/src/components/Notes/NoteEditorEnhanced.tsx` (334 lines)
+3. `/frontend/src/components/Admin/AdminDashboard.tsx` (252 lines)
 
 ### Modified Files
 1. `/frontend/src/App.tsx` - Added enhanced components, admin route
