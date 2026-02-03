@@ -15,33 +15,22 @@ python-pptx>=0.6.21
 unstructured>=0.11.0
 beautifulsoup4>=4.12.0
 
-# Web search - NEW
+# Web search
 duckduckgo-search>=4.0.0
 
-# Export and generation - NEW
+# Export and generation
 markdown>=3.5.0
 fpdf2>=2.7.0
 Pillow>=10.0.0
 httpx>=0.25.0
 
-# FastAPI Backend - NEW
+# Backend API dependencies
 fastapi>=0.109.1
 uvicorn[standard]>=0.24.0
-sqlalchemy>=2.0.0
-aiosqlite>=0.19.0
 pydantic>=2.4.0
 pydantic-settings>=2.0.0
-python-jose[cryptography]>=3.4.0
-passlib[bcrypt]>=1.7.4
 python-multipart>=0.0.22
-
-# Backend API dependencies
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
-pydantic>=2.4.0
-pydantic-settings>=2.0.0
-python-multipart>=0.0.6
-python-jose[cryptography]>=3.3.0
+python-jose[cryptography]>=3.4.0
 passlib[bcrypt]>=1.7.4
 sqlalchemy>=2.0.0
 aiosqlite>=0.19.0

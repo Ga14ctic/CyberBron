@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const api = axios.create({
   baseURL: '/api',
@@ -8,12 +7,7 @@ const api = axios.create({
   },
 });
 
-let navigate: ReturnType<typeof useNavigate> | null = null;
-
-export const setNavigate = (nav: ReturnType<typeof useNavigate>) => {
-  navigate = nav;
-};
-
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -27,15 +21,18 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor for error handling
+// Note: Components should catch 401 errors and handle navigation
+// using their own useNavigate hook from react-router-dom
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Clear auth data on unauthorized
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (navigate) {
-        navigate('/login');
-      }
+      // Components should catch this error and navigate to login
+      // using useNavigate() hook directly
     }
     return Promise.reject(error);
   }

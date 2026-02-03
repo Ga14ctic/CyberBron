@@ -69,6 +69,9 @@ class Flashcard(Base):
     answer = Column(Text, nullable=False)
     next_review = Column(DateTime(timezone=True))
     interval_days = Column(Integer, default=1)
+    # ease_factor stored as integer (multiplied by 100) for precision
+    # Actual ease factor = stored_value / 100 (e.g., 250 -> 2.5)
+    # Used in spaced repetition algorithm (SM-2)
     ease_factor = Column(Integer, default=250)  # Stored as int (2.5 * 100)
     review_count = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
