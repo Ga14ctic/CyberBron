@@ -242,8 +242,15 @@ def generate_presentation_content(
                 search_context = "\n\nWeb Research Context:\n"
                 for result in search_results[:3]:  # Use top 3 results
                     search_context += f"- {result['title']}: {result['snippet']}\n"
-        except:
-            pass
+        except Exception as e:
+            logger.warning(f"Web search failed: {e}")
+    
+    # Construct prompt with enhanced detail
+    detail_instructions = {
+        "Brief": "Provide 4-6 key points with specific examples, statistics, or technical details for each point.",
+        "Moderate": "Provide 6-8 comprehensive points with specific technical information, real-world examples, industry standards, and practical applications.",
+        "Detailed": "Provide 8-12 in-depth points covering technical specifications, detailed examples, case studies, industry standards, best practices, common pitfalls, and practical implementation details."
+    }
     
     content_instruction = ""
     if custom_content:
