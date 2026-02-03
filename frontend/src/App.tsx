@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -10,6 +11,7 @@ import FlashcardStudy from './components/Flashcards/FlashcardStudy';
 import QuizTake from './components/Quiz/QuizTake';
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
+import { setNavigate } from './services/api';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -44,6 +46,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const api = axios.create({
   baseURL: '/api',
@@ -6,6 +7,12 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+let navigate: ReturnType<typeof useNavigate> | null = null;
+
+export const setNavigate = (nav: ReturnType<typeof useNavigate>) => {
+  navigate = nav;
+};
 
 api.interceptors.request.use(
   (config) => {
@@ -26,7 +33,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (navigate) {
+        navigate('/login');
+      }
     }
     return Promise.reject(error);
   }
