@@ -24,6 +24,17 @@ fpdf2>=2.7.0
 Pillow>=10.0.0
 httpx>=0.25.0
 
+# FastAPI Backend - NEW
+fastapi>=0.109.1
+uvicorn[standard]>=0.24.0
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+pydantic>=2.4.0
+pydantic-settings>=2.0.0
+python-jose[cryptography]>=3.4.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.22
+
 # Utilities
 pyyaml>=6.0
 requests>=2.31.0
