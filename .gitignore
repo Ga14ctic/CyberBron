@@ -10,19 +10,23 @@ chroma_db/
 data/*
 !data/README.md
 
-# Ignore user-specific conversation logs
+# Ignore user-generated content
 conversations/
-
-# Ignore user-generated content - NEW
 notes/
 flashcards/
 memory/
 output/
 exports/
+uploads/
 
-# Ignore virtual environment folders (if you ever use them)
+# Ignore database files
+*.db
+*.db-journal
+
+# Ignore virtual environment folders
 venv/
 .venv/
+env/
 
 # Ignore IDE-specific folders
 .vscode/
@@ -30,7 +34,22 @@ venv/
 
 # Ignore user-specific config overrides
 config.local.yaml
+.env
+.env.local
 
 # Ignore log files
 *.log
 logs/
+
+# Ignore frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/build/
+
+# Ignore Docker volumes
+.docker/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
