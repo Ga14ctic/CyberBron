@@ -69,7 +69,7 @@ class Flashcard(Base):
     answer = Column(Text, nullable=False)
     next_review = Column(DateTime(timezone=True))
     interval_days = Column(Integer, default=1)
-    ease_factor = Column(Integer, default=2.5)
+    ease_factor = Column(Integer, default=250)  # Stored as int (2.5 * 100)
     review_count = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

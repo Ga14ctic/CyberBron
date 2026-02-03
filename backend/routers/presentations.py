@@ -5,9 +5,9 @@ Presentations router - Handle presentation generation and downloads
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timezone
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
 
 from ..database import get_db, User
@@ -67,7 +67,7 @@ async def generate_presentation(
             filename=filename,
             download_url=download_url,
             num_slides=request.num_slides,
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         
     except HTTPException:

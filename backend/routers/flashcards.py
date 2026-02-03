@@ -5,7 +5,7 @@ Flashcard router - Handle flashcard CRUD and spaced repetition
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from typing import Optional
 
@@ -89,9 +89,9 @@ async def create_flashcard(
             deck=flashcard_data.deck,
             question=flashcard_data.question,
             answer=flashcard_data.answer,
-            next_review=datetime.utcnow(),
+            next_review=datetime.now(timezone.utc),
             interval_days=1,
-            ease_factor=2.5,
+            ease_factor=250,  # 2.5 * 100
             review_count=0
         )
         
@@ -128,7 +128,7 @@ async def get_due_flashcards(
     try:
         query = select(Flashcard).where(
             Flashcard.user_id == current_user.id,
-            Flashcard.next_review <= datetime.utcnow()
+            Flashcard.next_review <= datetime.now(timezone.utc)
         )
         
         if deck:
@@ -180,17 +180,22 @@ async def review_flashcard(
         flashcard.review_count += 1
         
         # Calculate next review interval using simplified SM-2 algorithm
+        # Note: ease_factor is stored as int (value * 100) in database
+        ease_factor = flashcard.ease_factor / 100.0
+        
         if review.difficulty == "hard":
-            flashcard.ease_factor = max(1.3, flashcard.ease_factor - 0.2)
+            ease_factor = max(1.3, ease_factor - 0.2)
             flashcard.interval_days = max(1, flashcard.interval_days // 2)
         elif review.difficulty == "medium":
-            flashcard.interval_days = max(1, int(flashcard.interval_days * flashcard.ease_factor))
+            flashcard.interval_days = max(1, int(flashcard.interval_days * ease_factor))
         else:  # easy
-            flashcard.ease_factor = min(2.5, flashcard.ease_factor + 0.1)
-            flashcard.interval_days = max(1, int(flashcard.interval_days * flashcard.ease_factor * 1.3))
+            ease_factor = min(2.5, ease_factor + 0.1)
+            flashcard.interval_days = max(1, int(flashcard.interval_days * ease_factor * 1.3))
+        
+        flashcard.ease_factor = int(ease_factor * 100)
         
         # Set next review date
-        flashcard.next_review = datetime.utcnow() + timedelta(days=flashcard.interval_days)
+        flashcard.next_review = datetime.now(timezone.utc) + timedelta(days=flashcard.interval_days)
         
         await db.commit()
         await db.refresh(flashcard)

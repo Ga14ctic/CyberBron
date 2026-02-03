@@ -82,6 +82,13 @@ class FlashcardResponse(FlashcardBase):
     review_count: int
     created_at: datetime
     
+    @validator('ease_factor', pre=True)
+    def convert_ease_factor(cls, v):
+        """Convert integer storage (value * 100) to float."""
+        if isinstance(v, int):
+            return v / 100.0
+        return v
+    
     class Config:
         from_attributes = True
 

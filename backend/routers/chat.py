@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
+from datetime import datetime, timezone
 import logging
 from typing import List
 
@@ -64,12 +65,11 @@ async def send_chat_message(
         messages.append({
             "role": "user",
             "content": request.message,
-            "timestamp": str(datetime.now())
+            "timestamp": str(datetime.now(timezone.utc))
         })
         
         # TODO: Integrate with Ollama/LLM service for AI response
         # For now, return a placeholder response
-        from datetime import datetime
         import json
         
         ai_message = f"This is a placeholder response. In production, this would integrate with Ollama to process: {request.message}"
@@ -80,7 +80,7 @@ async def send_chat_message(
         messages.append({
             "role": "assistant",
             "content": ai_message,
-            "timestamp": str(datetime.now()),
+            "timestamp": str(datetime.now(timezone.utc)),
             "sources": sources,
             "web_search_used": web_search_used
         })
