@@ -167,18 +167,36 @@ class PPTXGenerator:
             # Full paragraph content
             content_frame.text = content
             p = content_frame.paragraphs[0]
-            p.font.size = Pt(16)
+            p.font.size = Pt(14)
             p.font.color.rgb = self.theme["text_color"]
-            p.line_spacing = 1.5
-            p.space_after = Pt(12)
+            p.line_spacing = 1.4
+            p.space_after = Pt(10)
         elif isinstance(content, list):
-            # Legacy bullet point support
-            for item in content:
-                p = content_frame.add_paragraph()
-                p.text = f"• {item}"
-                p.font.size = Pt(18)
+            # Bullet point list with detailed information
+            # Set first paragraph
+            if content:
+                content_frame.text = content[0]
+                p = content_frame.paragraphs[0]
+                p.font.size = Pt(14)
                 p.font.color.rgb = self.theme["text_color"]
-                p.space_after = Pt(12)
+                p.space_before = Pt(6)
+                p.space_after = Pt(6)
+                p.line_spacing = 1.3
+                
+                # Add remaining items
+                for item in content[1:]:
+                    p = content_frame.add_paragraph()
+                    p.text = item
+                    p.level = 0
+                    p.font.size = Pt(14)
+                    p.font.color.rgb = self.theme["text_color"]
+                    p.space_before = Pt(6)
+                    p.space_after = Pt(6)
+                    p.line_spacing = 1.3
+                    
+                    # Add bullet character
+                    from pptx.enum.text import PP_PARAGRAPH_ALIGNMENT
+                    p.alignment = PP_PARAGRAPH_ALIGNMENT.LEFT
     
     def _add_closing_slide(self, prs, title: str):
         """Add closing slide to presentation."""

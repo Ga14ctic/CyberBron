@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cyber-darker text-gray-100 font-mono;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #00ff88 #1a1f2e;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-cyber-gray;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-cyber-primary rounded-full;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-cyber-secondary;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-cyber-primary text-cyber-dark px-4 py-2 rounded font-semibold hover:bg-opacity-80 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-cyber-gray text-cyber-primary px-4 py-2 rounded font-semibold hover:bg-cyber-lightgray transition-all duration-300 border border-cyber-primary;
+  }
+
+  .input-field {
+    @apply w-full bg-cyber-gray border border-cyber-lightgray rounded px-4 py-2 text-gray-100 focus:border-cyber-primary focus:outline-none focus:ring-1 focus:ring-cyber-primary transition-all;
+  }
+
+  .card {
+    @apply bg-cyber-gray border border-cyber-lightgray rounded-lg p-6 shadow-lg hover:shadow-cyber-primary/10 transition-all duration-300;
+  }
+
+  .cyber-glow {
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+  }
+
+  .markdown-content {
+    @apply prose prose-invert max-w-none;
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3 {
+    @apply text-cyber-primary;
+  }
+
+  .markdown-content code {
+    @apply bg-cyber-darker text-cyber-secondary px-1 py-0.5 rounded text-sm;
+  }
+
+  .markdown-content pre {
+    @apply bg-cyber-darker p-4 rounded overflow-x-auto;
+  }
+
+  .markdown-content a {
+    @apply text-cyber-secondary hover:text-cyber-primary;
+  }
+}
+
+.loading-spinner {
+  border: 3px solid rgba(0, 255, 136, 0.1);
+  border-top: 3px solid #00ff88;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # CyberBron Backend API
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/cyberbron.db
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEBUG=false
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+      - ./output:/app/output
+      - ./exports:/app/exports
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - cyberbron
+
+  # Ollama service
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - cyberbron
+
+  # Frontend (Streamlit - legacy)
+  frontend:
+    build: .
+    command: streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+      - ./conversations:/app/conversations
+      - ./notes:/app/notes
+      - ./flashcards:/app/flashcards
+    depends_on:
+      - ollama
+      - backend
+    restart: unless-stopped
+    networks:
+      - cyberbron
+
+volumes:
+  ollama_data:
+
+networks:
+  cyberbron:
+    driver: bridge
