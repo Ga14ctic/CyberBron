@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageSquare, BookOpen, CreditCard, ClipboardCheck } from 'lucide-react';
+import { Home, MessageSquare, BookOpen, CreditCard, ClipboardCheck, Shield } from 'lucide-react';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Dashboard' },
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/notes', icon: BookOpen, label: 'Notes' },
   { to: '/flashcards', icon: CreditCard, label: 'Flashcards' },
   { to: '/quiz', icon: ClipboardCheck, label: 'Quiz' },
+  { to: '/admin', icon: Shield, label: 'Admin' },
 ];
 
 export default function Sidebar() {
@@ -19,10 +20,10 @@ export default function Sidebar() {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center space-x-3 px-4 py-3 rounded transition-all ${
+                  `flex items-center space-x-3 px-4 py-3 rounded transition-all duration-300 ${
                     isActive
-                      ? 'bg-cyber-primary text-cyber-dark font-semibold'
-                      : 'text-gray-300 hover:bg-cyber-lightgray hover:text-cyber-primary'
+                      ? 'bg-cyber-primary text-cyber-dark font-semibold shadow-lg shadow-cyber-primary/30'
+                      : 'text-gray-300 hover:bg-cyber-lightgray hover:text-cyber-primary hover:translate-x-1'
                   }`
                 }
               >
