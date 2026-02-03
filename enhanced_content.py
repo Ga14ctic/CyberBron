@@ -90,6 +90,101 @@ class PearsonTLevelIntegration:
         ]
     }
     
+    # Specific technical details database for presentations
+    TECHNICAL_SPECIFICS = {
+        "Network Security": {
+            "protocols": ["TCP/IP", "UDP", "ICMP", "ARP", "DNS", "DHCP", "HTTP/HTTPS", "FTP/SFTP", "SSH", "Telnet"],
+            "attacks": [
+                "DDoS attacks: SYN flood (80% of attacks), UDP flood, ICMP flood - Mirai botnet affected 600,000+ devices",
+                "Man-in-the-Middle: ARP spoofing, DNS poisoning, SSL stripping - 35% of public WiFi vulnerable",
+                "Packet sniffing: Wireshark, tcpdump - can capture credentials on unencrypted networks"
+            ],
+            "tools": ["Wireshark", "Nmap", "Metasploit", "Snort", "Suricata", "pfSense", "Cisco ASA"],
+            "standards": ["IEEE 802.1X", "WPA3", "IPSec", "TLS 1.3", "DNSSEC"],
+            "statistics": [
+                "93% of network breaches exploit known vulnerabilities (Verizon DBIR 2023)",
+                "Average cost of a data breach: $4.45 million (IBM 2023)",
+                "68% of breaches involve human error"
+            ]
+        },
+        "Cryptography": {
+            "algorithms": ["AES-256", "RSA-2048/4096", "SHA-256/SHA-3", "ECDSA", "ChaCha20-Poly1305"],
+            "applications": [
+                "TLS 1.3: 40% faster than TLS 1.2, removes weak ciphers",
+                "HTTPS adoption: 95% of web traffic encrypted (2023)",
+                "End-to-end encryption: Signal Protocol, WhatsApp (2B+ users)"
+            ],
+            "key_facts": [
+                "AES-256: 2^256 possible keys (longer than age of universe to brute force)",
+                "RSA recommended minimum: 2048 bits (NIST), 4096 for long-term security",
+                "Quantum threat: Shor's algorithm can break RSA, hence post-quantum cryptography (PQC)"
+            ],
+            "standards": ["FIPS 140-2/3", "NIST SP 800-57", "ISO/IEC 19790"],
+            "tools": ["OpenSSL", "GPG", "HashiCorp Vault", "Let's Encrypt", "Certbot"]
+        },
+        "Web Security": {
+            "owasp_top_10": [
+                "A01: Broken Access Control - 94% of applications tested had some form",
+                "A02: Cryptographic Failures - affects 3.5 million passwords leaked in 2023",
+                "A03: Injection (SQL, XSS) - 32% of web apps vulnerable",
+                "A04: Insecure Design - lack of security requirements in SDLC",
+                "A05: Security Misconfiguration - default credentials, unnecessary features",
+                "A06: Vulnerable Components - 84% use components with known vulnerabilities",
+                "A07: Authentication Failures - weak passwords, missing MFA",
+                "A08: Software/Data Integrity - supply chain attacks up 300% in 2023",
+                "A09: Logging Failures - 60% can't detect breaches for months",
+                "A10: SSRF - server-side request forgery gaining prominence"
+            ],
+            "attacks": [
+                "SQL Injection: Union-based, Boolean-based, Time-based blind - impacts 65% of apps",
+                "XSS: Stored (most dangerous), Reflected, DOM-based - allows session hijacking",
+                "CSRF: Forces users to execute unwanted actions - prevented with tokens"
+            ],
+            "tools": ["Burp Suite", "OWASP ZAP", "SQLMap", "Nikto", "Acunetix", "ModSecurity WAF"],
+            "frameworks": ["Django", "Ruby on Rails", "ASP.NET Core", "Spring Security"],
+            "statistics": [
+                "Average 72 vulnerabilities per application (Veracode 2023)",
+                "Web attacks increased 164% year-over-year",
+                "API attacks up 681% in 2022"
+            ]
+        },
+        "Incident Response": {
+            "frameworks": [
+                "NIST SP 800-61: Preparation, Detection, Analysis, Containment, Eradication, Recovery",
+                "SANS Incident Handler: 6-step process used by 78% of organizations",
+                "MITRE ATT&CK: 14 tactics, 193 techniques for threat detection"
+            ],
+            "tools": [
+                "SIEM: Splunk, IBM QRadar, LogRhythm - aggregate logs from 100+ sources",
+                "EDR: CrowdStrike, SentinelOne, Carbon Black - behavioral analysis",
+                "Forensics: EnCase, FTK, Autopsy - disk imaging and analysis"
+            ],
+            "metrics": [
+                "Mean Time to Detect (MTTD): Industry average 207 days (Mandiant 2023)",
+                "Mean Time to Respond (MTTR): Average 73 days",
+                "Cost per minute of downtime: $9,000 for enterprise"
+            ],
+            "case_studies": [
+                "Colonial Pipeline (2021): DarkSide ransomware, $4.4M ransom paid, 6-day shutdown",
+                "SolarWinds (2020): Supply chain attack affected 18,000+ organizations",
+                "MOVEit (2023): Zero-day exploit, 600+ organizations breached"
+            ]
+        },
+        "Compliance": {
+            "regulations": [
+                "GDPR: €20M or 4% of global revenue fines - 1,618 fines issued (2023)",
+                "PCI DSS v4.0: 12 requirements for handling card data",
+                "HIPAA: $100-50,000 per violation, max $1.5M per year",
+                "SOX: Criminal penalties for executives, up to 20 years prison"
+            ],
+            "standards": [
+                "ISO 27001: 114 controls across 14 domains - 50,000+ certified orgs",
+                "NIST CSF: Identify, Protect, Detect, Respond, Recover - used by 50% of US orgs",
+                "CIS Controls: 18 controls, 153 safeguards - prioritized implementation"
+            ]
+        }
+    }
+    
     @classmethod
     def get_topic_context(cls, topic: str) -> Optional[Dict]:
         """Get curriculum context for a topic."""
@@ -119,10 +214,19 @@ class PearsonTLevelIntegration:
         return []
     
     @classmethod
+    def get_technical_specifics(cls, topic: str) -> Dict:
+        """Get technical specifics for a topic."""
+        for key, specifics in cls.TECHNICAL_SPECIFICS.items():
+            if key.lower() in topic.lower() or topic.lower() in key.lower():
+                return specifics
+        return {}
+    
+    @classmethod
     def enhance_prompt_with_curriculum(cls, base_prompt: str, topic: str) -> str:
         """Enhance generation prompt with curriculum context."""
         context = cls.get_topic_context(topic)
         outcomes = cls.get_learning_outcomes(topic)
+        specifics = cls.get_technical_specifics(topic)
         
         enhancement = "\n\nT-Level Curriculum Context:\n"
         
@@ -135,7 +239,13 @@ class PearsonTLevelIntegration:
             for outcome in outcomes[:3]:  # Top 3 most relevant
                 enhancement += f"- {outcome}\n"
         
-        enhancement += "\nAlign the generated content with these T-Level objectives."
+        if specifics:
+            enhancement += "\nTechnical Details to Include:\n"
+            for category, items in list(specifics.items())[:3]:
+                if isinstance(items, list) and items:
+                    enhancement += f"- {category.title()}: {items[0]}\n"
+        
+        enhancement += "\nAlign the generated content with these T-Level objectives and technical specifics."
         
         return base_prompt + enhancement
 

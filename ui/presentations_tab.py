@@ -195,7 +195,7 @@ def generate_presentation_content(
     search_service = None
 ) -> list:
     """
-    Generate presentation content using LLM.
+    Generate presentation content using LLM with enhanced detail and specifics.
     
     Args:
         llm: Language model instance
@@ -209,47 +209,93 @@ def generate_presentation_content(
     Returns:
         List of slide dictionaries with 'title' and 'content'
     """
+    # Import enhanced content module for T-Level integration
+    try:
+        from enhanced_content import PearsonTLevelIntegration
+        
+        # Get technical specifics for the topic
+        specifics = PearsonTLevelIntegration.get_technical_specifics(topic)
+        curriculum_context = PearsonTLevelIntegration.get_topic_context(topic)
+        
+        specifics_text = ""
+        if specifics:
+            specifics_text = "\n\nTechnical Specifics Database (USE THIS INFORMATION):\n"
+            for category, items in specifics.items():
+                specifics_text += f"\n{category.upper()}:\n"
+                if isinstance(items, list):
+                    for item in items[:5]:  # Top 5 items per category
+                        specifics_text += f"- {item}\n"
+        
+        curriculum_text = ""
+        if curriculum_context:
+            curriculum_text = f"\n\nT-Level Curriculum: {curriculum_context.get('unit', '')} - {curriculum_context.get('title', '')}"
+    except ImportError:
+        specifics_text = ""
+        curriculum_text = ""
+    
     # Perform web search if enabled
     search_context = ""
     if enable_search and search_service:
-        search_results = search_service.search_cybersecurity(topic)
-        if search_results:
-            search_context = "\n\nWeb Research Context:\n"
-            for result in search_results[:3]:  # Use top 3 results
-                search_context += f"- {result['title']}: {result['snippet']}\n"
-    
-    # Construct prompt
-    detail_instructions = {
-        "Brief": "Write 1-2 concise paragraphs (3-4 sentences each) explaining the key concepts.",
-        "Moderate": "Write 2-3 well-developed paragraphs (4-5 sentences each) with clear explanations and examples.",
-        "Detailed": "Write 3-4 comprehensive paragraphs (5-6 sentences each) with in-depth analysis, examples, and thorough coverage."
-    }
+        try:
+            search_results = search_service.search_cybersecurity(topic)
+            if search_results:
+                search_context = "\n\nWeb Research Context:\n"
+                for result in search_results[:3]:  # Use top 3 results
+                    search_context += f"- {result['title']}: {result['snippet']}\n"
+        except:
+            pass
     
     content_instruction = ""
     if custom_content:
         content_instruction = f"\n\nBase the presentation on this content:\n{custom_content}\n"
     
-    prompt = f"""Create a professional presentation outline for: "{topic}"
+    prompt = f"""Create a professional, information-rich presentation for: "{topic}"
 
 Generate exactly {num_slides} content slides (excluding title and closing slides).
+{curriculum_text}
+
+CRITICAL REQUIREMENTS:
+1. Include SPECIFIC technical details, not generic overviews
+2. Provide concrete examples with real names, numbers, and specifications
+3. Include industry standards, frameworks, and methodologies by name
+4. Add statistics, percentages, and quantifiable data where relevant
+5. Reference actual tools, technologies, and products used in the field
+6. Include best practices and common pitfalls with specific scenarios
+7. Make it suitable for T-Level Cybersecurity students with practical, job-relevant information
+
 {detail_instructions[detail_level]}
 
-IMPORTANT: Do NOT use bullet points. Write full paragraphs that go into depth on each topic.
-Each slide should have well-written, flowing paragraphs that thoroughly explain the concept.
-The content should be suitable for T-Level cybersecurity students.
+For each slide, structure the content as an array of specific, detailed points.
+Each point should be substantial and include:
+- Technical specifics (protocols, algorithms, standards, etc.)
+- Real examples (tools, companies, incidents, etc.)
+- Quantifiable data (statistics, percentages, time frames, etc.)
+- Practical context (when to use, how it works, why it matters)
 {content_instruction}
+{specifics_text}
 {search_context}
 
 Format your response as a JSON array with this structure:
 [
   {{
-    "title": "Slide Title",
-    "content": "Full paragraph text explaining the topic in depth. This should be multiple sentences that flow naturally and provide comprehensive information about the subject matter."
+    "title": "Specific, Technical Slide Title",
+    "content": [
+      "First key point with specific technical details and examples - include names, numbers, and concrete information",
+      "Second key point with real-world application and industry standards - reference actual frameworks or methodologies",
+      "Third key point with quantifiable data and practical context - include statistics and specific scenarios",
+      "Additional points following the same pattern..."
+    ]
   }}
 ]
 
-Make sure each slide has a clear title and detailed paragraph content (not bullet points).
-Focus on clarity, depth, accuracy, and educational value.
+Example of GOOD content (specific and detailed):
+"SQL Injection remains the #1 web vulnerability, affecting 65% of web applications according to OWASP 2023. Attack vectors include GET/POST parameters, cookies, and HTTP headers. Real-world example: In 2023, MOVEit Transfer vulnerability (CVE-2023-34362) led to breaches at major organizations including Shell, Siemens, and 600+ others. Prevention techniques: Use parameterized queries (PreparedStatement in Java, PDO in PHP), ORM frameworks like SQLAlchemy or Hibernate, input validation with regex patterns, stored procedures, principle of least privilege for database accounts, and Web Application Firewalls (WAFs) like ModSecurity or Cloudflare."
+
+Example of BAD content (too generic):
+"SQL Injection is a common security issue that affects many websites. It happens when user input is not properly validated. Attackers can access databases. It can be prevented with good coding practices and security measures."
+
+Make every slide information-dense with specific, actionable, and technically accurate content.
+Include real tool names, framework names, standards, statistics, and case studies wherever possible.
 """
     
     try:
@@ -268,11 +314,9 @@ Focus on clarity, depth, accuracy, and educational value.
             valid_slides = []
             for slide in slides[:num_slides]:  # Limit to requested number
                 if isinstance(slide, dict) and 'title' in slide and 'content' in slide:
-                    # Content can be either a string (paragraph) or list (for backward compatibility)
+                    # Content should be a list of bullet points for detailed information
+                    # If it's a string, keep it as is for backward compatibility
                     if isinstance(slide['content'], (str, list)):
-                        # Convert list to paragraph if needed
-                        if isinstance(slide['content'], list):
-                            slide['content'] = ' '.join(slide['content'])
                         valid_slides.append(slide)
             
             return valid_slides
