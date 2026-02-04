@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageSquare, BookOpen, CreditCard, ClipboardCheck, Shield } from 'lucide-react';
+import { MessageSquare, BookOpen, CreditCard, ClipboardCheck, Shield, BarChart3 } from 'lucide-react';
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Dashboard' },
+  { to: '/', icon: BookOpen, label: 'Notes', highlight: true },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
-  { to: '/notes', icon: BookOpen, label: 'Notes' },
   { to: '/flashcards', icon: CreditCard, label: 'Flashcards' },
   { to: '/quiz', icon: ClipboardCheck, label: 'Quiz' },
+  { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin', icon: Shield, label: 'Admin' },
 ];
 
@@ -23,6 +23,8 @@ export default function Sidebar() {
                   `flex items-center space-x-3 px-4 py-3 rounded transition-all duration-300 ${
                     isActive
                       ? 'bg-cyber-primary text-cyber-dark font-semibold shadow-lg shadow-cyber-primary/30'
+                      : item.highlight
+                      ? 'text-cyber-primary hover:bg-cyber-lightgray hover:text-cyber-primary hover:translate-x-1 font-medium'
                       : 'text-gray-300 hover:bg-cyber-lightgray hover:text-cyber-primary hover:translate-x-1'
                   }`
                 }

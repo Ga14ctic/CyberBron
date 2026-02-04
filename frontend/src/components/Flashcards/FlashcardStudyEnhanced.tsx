@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { CreditCard, Plus, RotateCw, TrendingUp, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import { CreditCard, Plus, RotateCw, TrendingUp, CheckCircle, XCircle, Sparkles, BookOpen, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { flashcardsService } from '../../services/flashcardsService';
-import { Flashcard } from '../../types';
+import { notesService } from '../../services/notesService';
+import { Flashcard, Note } from '../../types';
 
 export default function FlashcardStudyEnhanced() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
@@ -13,10 +15,21 @@ export default function FlashcardStudyEnhanced() {
   const [newCard, setNewCard] = useState({ front: '', back: '', difficulty: 'medium' as const });
   const [showNewCardForm, setShowNewCardForm] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [notesAvailable, setNotesAvailable] = useState<Note[]>([]);
 
   useEffect(() => {
     loadFlashcards();
+    loadNotes();
   }, []);
+
+  const loadNotes = async () => {
+    try {
+      const data = await notesService.getNotes();
+      setNotesAvailable(data);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
+    }
+  };
 
   const loadFlashcards = async () => {
     try {
@@ -103,17 +116,42 @@ export default function FlashcardStudyEnhanced() {
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-cyber-primary flex items-center gap-2">
-          <Sparkles className="w-8 h-8" />
+          <CreditCard className="w-8 h-8" />
           Flashcards
         </h1>
         <button
           onClick={() => setShowNewCardForm(!showNewCardForm)}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-secondary flex items-center space-x-2"
         >
           <Plus className="w-5 h-5" />
-          <span>New Flashcard</span>
+          <span>Manual Card</span>
         </button>
       </div>
+
+      {/* Generate from Notes Banner */}
+      {notesAvailable.length > 0 && (
+        <div className="card bg-gradient-to-r from-cyber-primary/10 to-cyber-secondary/10 border-2 border-cyber-primary/30 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-cyber-primary mb-2 flex items-center gap-2">
+                <Sparkles className="w-6 h-6" />
+                Generate Flashcards from Your Notes
+              </h3>
+              <p className="text-gray-300 mb-4">
+                You have {notesAvailable.length} note{notesAvailable.length !== 1 ? 's' : ''} ready. 
+                Generate up to 100 flashcards per note with varied question types and relational understanding.
+              </p>
+              <div className="flex gap-3">
+                <Link to="/" className="btn-primary flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  View Notes
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="card hover:scale-105 transition-transform duration-300">

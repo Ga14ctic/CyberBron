@@ -12,20 +12,38 @@ A comprehensive, local AI study platform built specifically for T-Level Cybersec
 - **Quick Actions**: Save responses to notes, generate flashcards, or create presentations
 
 ### 📝 **Complete Notes Management**
-- Create, edit, and organize study notes
+- Create, edit, and organize study notes with full-page editor
+- Enhanced editor with multiple themes (Cyber, Dark, Light, Academic)
+- Auto-save functionality with visual feedback
+- Split-view editing with real-time markdown preview
+- AI-powered note features:
+  - **AI Summarization**: Generate concise summaries of your notes
+  - **AI Expansion**: Add more detail, context, and explanations automatically
+  - **Flashcard Generation**: Create flashcards directly from note content (up to 100 cards)
+  - **Quiz Generation**: Generate instant quizzes from your notes
+  - **Presentation Generation**: Convert notes to PowerPoint presentations
 - Search across all notes with full-text search
 - Tag and folder organization system
 - Export notes to Markdown
-- AI-powered note features (summarization, flashcard generation)
 - Save conversation responses directly to notes
 
 ### 🎴 **Flashcard System with Spaced Repetition**
-- Create flashcards manually or generate with AI
+- Create flashcards manually or generate with AI (up to 100 cards per generation)
+- Enhanced AI generation with:
+  - Varied question types (conceptual, application, comparative, multi-step)
+  - Relational understanding (concept connections, theory-to-practice links)
+  - Rich context with examples, statistics, and real-world applications
+  - Multiple cognitive levels (remember, understand, apply, analyze)
 - Spaced repetition algorithm (Easy: 7 days, Medium: 3 days, Hard: 1 day)
 - Deck management and organization
 - Study mode with card flipping interface
 - Generate flashcards from notes or conversations
 - Track review progress and mastery
+- Spaced repetition dashboard with statistics:
+  - Cards due today
+  - Mastery progress
+  - Daily review count
+  - Average ease factor
 
 ### 📊 **Quiz Mode with AI Grading**
 - Generate quizzes from your study materials using AI
@@ -36,9 +54,20 @@ A comprehensive, local AI study platform built specifically for T-Level Cybersec
 - Review incorrect answers with feedback
 
 ### 🎯 **Presentation Generator**
-- Generate professional PowerPoint presentations
+- Generate professional PowerPoint presentations (up to 50 slides)
 - Multiple themes: Professional, Modern, Minimal, Dark (cybersecurity theme)
-- Optional web research for additional content
+- Three detail levels:
+  - **Brief**: 8-10 comprehensive points per slide with examples
+  - **Moderate**: 12-16 detailed points with case studies and standards
+  - **Detailed**: 20-30 in-depth points with multi-paragraph explanations, academic context, comparisons, and trends
+- Optional web research for additional content (uses top 10 search results)
+- Enhanced content generation with:
+  - Specific technical details and specifications
+  - Real-world examples with data and case studies
+  - Comparative analysis and pros/cons tables
+  - Industry standards and frameworks by name
+  - Historical context and future trends
+  - Academic background and research foundations
 - Configurable number of slides and detail level
 - Download presentations directly
 - Based on SlideBron architecture

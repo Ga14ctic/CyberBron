@@ -160,7 +160,7 @@ def render_create_flashcard(flashcard_service: FlashcardService, flashcard_gener
             with st.form("generate_from_note"):
                 col1, col2 = st.columns(2)
                 with col1:
-                    num_cards = st.number_input("Number of cards", min_value=1, max_value=20, value=10)
+                    num_cards = st.number_input("Number of cards", min_value=1, max_value=100, value=10)
                 with col2:
                     deck = st.text_input("Deck", value=note.get('folder', 'General'))
                 
@@ -253,7 +253,7 @@ def render_create_flashcard(flashcard_service: FlashcardService, flashcard_gener
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                num_cards = st.number_input("Number of cards", min_value=1, max_value=20, value=10)
+                num_cards = st.number_input("Number of cards", min_value=1, max_value=100, value=10)
             with col2:
                 deck = st.text_input("Deck", value="Generated")
             with col3:
