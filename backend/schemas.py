@@ -98,7 +98,7 @@ class FlashcardReview(BaseModel):
 
 class FlashcardGenerateRequest(BaseModel):
     content: str = Field(..., min_length=50)
-    num_cards: int = Field(10, ge=1, le=20)
+    num_cards: int = Field(10, ge=1, le=100)
     deck: str = "Generated"
 
 # Quiz schemas
@@ -165,7 +165,7 @@ class ChatResponse(BaseModel):
 # Presentation schemas
 class PresentationRequest(BaseModel):
     topic: str = Field(..., min_length=1)
-    num_slides: int = Field(7, ge=3, le=30)
+    num_slides: int = Field(7, ge=3, le=50)
     theme: str = "professional"
     detail_level: str = "moderate"
     enable_web_search: bool = True

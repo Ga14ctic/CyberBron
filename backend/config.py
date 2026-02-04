@@ -47,9 +47,9 @@ class Settings(BaseSettings):
     ENABLE_RATE_LIMITING: bool = True
     
     # Content generation
-    MAX_FLASHCARDS_PER_REQUEST: int = 20
+    MAX_FLASHCARDS_PER_REQUEST: int = 100
     MAX_QUIZ_QUESTIONS: int = 50
-    MAX_PRESENTATION_SLIDES: int = 30
+    MAX_PRESENTATION_SLIDES: int = 50
     
     # Pearson T-Level Integration
     PEARSON_SPEC_URL: str = "https://qualifications.pearson.com/content/dam/pdf/T-Level/digital-production-design-development/2020/specification/Digital-TLevel-Specification-Issue-4.pdf"

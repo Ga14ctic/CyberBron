@@ -51,7 +51,7 @@ def render_presentations_tab(presentation_service: PresentationService, llm, sea
             num_slides = st.number_input(
                 "Number of Slides",
                 min_value=3,
-                max_value=20,
+                max_value=50,
                 value=7
             )
         
@@ -240,44 +240,107 @@ def generate_presentation_content(
             search_results = search_service.search_cybersecurity(topic)
             if search_results:
                 search_context = "\n\nWeb Research Context:\n"
-                for result in search_results[:3]:  # Use top 3 results
+                for result in search_results[:10]:  # Use top 10 results for comprehensive research
                     search_context += f"- {result['title']}: {result['snippet']}\n"
         except Exception as e:
             logger.warning(f"Web search failed: {e}")
     
     # Construct prompt with enhanced detail
     detail_instructions = {
-        "Brief": "Provide 4-6 key points with specific examples, statistics, or technical details for each point.",
-        "Moderate": "Provide 6-8 comprehensive points with specific technical information, real-world examples, industry standards, and practical applications.",
-        "Detailed": "Provide 8-12 in-depth points covering technical specifications, detailed examples, case studies, industry standards, best practices, common pitfalls, and practical implementation details."
+        "Brief": """Provide 8-10 substantial points per slide, each containing:
+- Specific technical details with names and specifications
+- Real-world examples with concrete data
+- Industry standards and frameworks by name
+- Statistics and quantifiable metrics
+- Multiple paragraphs of explanation for complex topics
+Focus on delivering comprehensive information in a concise format.""",
+        
+        "Moderate": """Provide 12-16 comprehensive points per slide with multiple paragraphs covering:
+- Detailed technical specifications, protocols, and algorithms
+- Extensive real-world examples with case studies
+- Industry standards, compliance frameworks, and methodologies
+- Statistical analysis with trends and comparative data
+- Practical applications with implementation details
+- Best practices and common pitfalls with specific scenarios
+- Historical context where relevant
+Each point should be 2-3 sentences minimum with rich technical content.""",
+        
+        "Detailed": """Provide 20-30 in-depth points per slide, structured as multiple detailed paragraphs covering:
+- Complete technical specifications with protocol details, algorithm breakdowns, and architectural patterns
+- Multiple real-world case studies with incident analysis, timeline details, and impact assessment
+- Comprehensive coverage of industry standards (ISO, NIST, OWASP), compliance frameworks (GDPR, HIPAA, PCI-DSS), and methodologies
+- Extensive statistical analysis including trends over time, comparative analysis, market data, and research findings
+- Detailed practical implementations with code examples, configuration guides, and deployment strategies
+- Thorough best practices documentation with pros/cons analysis, trade-offs, and decision criteria
+- Common pitfalls with specific failure scenarios, remediation strategies, and lessons learned
+- Historical evolution of the technology/concept with key milestones and future trends
+- Academic and research context where applicable
+- Relationship to other concepts and technologies with comparison tables
+Each point should be substantial (3-5 sentences) and information-dense. For complex topics like hash functions or encryption algorithms:
+  * Include algorithm specifics (SHA-256: 256-bit output, 64 rounds, Merkle-Damgård construction)
+  * Usage contexts (SHA-256 in Bitcoin mining, SSL/TLS certificates, digital signatures)
+  * Comparative analysis (SHA-256 vs SHA-3 vs Blake2: performance benchmarks, security margins, adoption rates)
+  * Vulnerability history (SHA-1 collision attacks in 2017, migration timelines, deprecated usage)
+  * Implementation details (hash rates, hardware acceleration, library recommendations)
+  * Academic background (Designed by NSA in 2001, published in FIPS 180-2)
+  * Future outlook (Quantum resistance, post-quantum alternatives)"""
     }
     
     content_instruction = ""
     if custom_content:
         content_instruction = f"\n\nBase the presentation on this content:\n{custom_content}\n"
     
-    prompt = f"""Create a professional, information-rich presentation for: "{topic}"
+    prompt = f"""Create a highly detailed, professional, and information-rich presentation for: "{topic}"
 
 Generate exactly {num_slides} content slides (excluding title and closing slides).
 {curriculum_text}
 
-CRITICAL REQUIREMENTS:
-1. Include SPECIFIC technical details, not generic overviews
-2. Provide concrete examples with real names, numbers, and specifications
-3. Include industry standards, frameworks, and methodologies by name
-4. Add statistics, percentages, and quantifiable data where relevant
-5. Reference actual tools, technologies, and products used in the field
-6. Include best practices and common pitfalls with specific scenarios
-7. Make it suitable for T-Level Cybersecurity students with practical, job-relevant information
+CRITICAL REQUIREMENTS FOR MAXIMUM DETAIL AND SPECIFICITY:
+
+1. TECHNICAL DEPTH:
+   - Include specific technical details: protocol names, algorithm specifications, architectural patterns
+   - Provide concrete examples with real names, version numbers, and specifications
+   - Reference industry standards, frameworks, and methodologies by exact name (e.g., ISO 27001, NIST CSF, OWASP Top 10)
+   - Add extensive statistics, percentages, and quantifiable data with sources and dates
+   - Include actual tools, technologies, and products with version information
+
+2. COMPREHENSIVE COVERAGE:
+   - For algorithms (e.g., hash functions): Include design details, bit operations, round counts, security margins
+   - For vulnerabilities: Provide CVE numbers, discovery dates, affected systems, impact analysis
+   - For technologies: Cover history, current usage, market adoption, future trends
+   - Include comparative analysis with pros/cons tables when discussing alternatives
+   - Add implementation details, configuration examples, and practical deployment guidance
+
+3. RELATIONAL AND CONTEXTUAL:
+   - Explain relationships between concepts (how X relates to Y, when to use A vs B)
+   - Provide historical context and evolution timeline
+   - Include academic background and research foundations
+   - Discuss real-world applications across different industries
+   - Connect theory to practice with specific use cases
+
+4. REAL-WORLD GROUNDING:
+   - Reference actual security incidents with dates, organizations, and impact details
+   - Include case studies with specific scenarios and outcomes
+   - Mention tools used in industry (open-source and commercial)
+   - Provide statistics from recent reports (OWASP, Verizon DBIR, etc.)
+   - Include current trends and threat landscape updates
+
+5. STUDENT-FOCUSED DETAIL:
+   - Make content suitable for T-Level Cybersecurity with job-relevant depth
+   - Include practical skills and knowledge needed for the industry
+   - Provide exam-relevant details and certification-aligned content
+   - Add best practices that professionals actually use
+   - Include common pitfalls and how to avoid them
 
 {detail_instructions[detail_level]}
 
-For each slide, structure the content as an array of specific, detailed points.
-Each point should be substantial and include:
-- Technical specifics (protocols, algorithms, standards, etc.)
-- Real examples (tools, companies, incidents, etc.)
-- Quantifiable data (statistics, percentages, time frames, etc.)
-- Practical context (when to use, how it works, why it matters)
+For each slide, structure content as an array of substantial, information-dense points.
+Each point should include multiple sentences with:
+- Technical specifications and precise terminology
+- Real examples with names, numbers, dates, and sources
+- Quantifiable data with context and comparisons
+- Practical implications and applications
+- Relational connections to other concepts
 {content_instruction}
 {specifics_text}
 {search_context}
@@ -285,24 +348,40 @@ Each point should be substantial and include:
 Format your response as a JSON array with this structure:
 [
   {{
-    "title": "Specific, Technical Slide Title",
+    "title": "Specific, Technical Slide Title That Clearly States the Topic",
     "content": [
-      "First key point with specific technical details and examples - include names, numbers, and concrete information",
-      "Second key point with real-world application and industry standards - reference actual frameworks or methodologies",
-      "Third key point with quantifiable data and practical context - include statistics and specific scenarios",
-      "Additional points following the same pattern..."
+      "First comprehensive point: Start with a clear statement, then provide specific technical details with exact names and specifications. Include real-world examples with concrete data points. Add statistics with sources. Explain the practical significance and relationships to other concepts. Minimum 3-4 sentences.",
+      "Second comprehensive point: Follow the same detailed pattern with different aspects. Include comparisons, alternatives, or historical context. Reference specific tools, standards, or frameworks. Provide implementation details or usage contexts. Maintain information density throughout.",
+      "Continue with additional points following the comprehensive pattern, ensuring each point delivers substantial technical and practical value...",
+      "For detailed level: Include extensive coverage with multiple paragraphs per point, academic references, vulnerability details with CVE numbers, market statistics, performance benchmarks, migration strategies, future trends, and quantum computing implications where relevant."
     ]
   }}
 ]
 
-Example of GOOD content (specific and detailed):
-"SQL Injection remains the #1 web vulnerability, affecting 65% of web applications according to OWASP 2023. Attack vectors include GET/POST parameters, cookies, and HTTP headers. Real-world example: In 2023, MOVEit Transfer vulnerability (CVE-2023-34362) led to breaches at major organizations including Shell, Siemens, and 600+ others. Prevention techniques: Use parameterized queries (PreparedStatement in Java, PDO in PHP), ORM frameworks like SQLAlchemy or Hibernate, input validation with regex patterns, stored procedures, principle of least privilege for database accounts, and Web Application Firewalls (WAFs) like ModSecurity or Cloudflare."
+EXAMPLE OF EXCELLENT CONTENT (highly specific and detailed):
 
-Example of BAD content (too generic):
-"SQL Injection is a common security issue that affects many websites. It happens when user input is not properly validated. Attackers can access databases. It can be prevented with good coding practices and security measures."
+Title: "SHA-2 Family: SHA-256 and SHA-512 Deep Dive"
+Content:
+[
+  "SHA-256 Architecture: Designed by NSA and published by NIST in 2001 (FIPS 180-2), SHA-256 uses a Merkle-Damgård construction with 64 rounds of processing. It produces a 256-bit (32-byte) hash digest from input data processed in 512-bit blocks. The algorithm employs 8 working variables (a-h), 64 round constants derived from cube roots of first 64 primes, and bitwise operations (AND, OR, XOR, NOT, ROTR, SHR). Computational complexity: O(n) where n is message length. Modern CPUs can hash at 200-400 MB/s, while specialized ASICs (Bitcoin miners) achieve 100+ TH/s.",
+  
+  "Real-World Usage and Adoption: SHA-256 is the backbone of Bitcoin blockchain (mining difficulty target requires hash with specific number of leading zeros), SSL/TLS certificates (replacing deprecated SHA-1), digital signatures in PKI, HMAC-SHA256 in JWT tokens, and Git commit IDs. Google announced full SHA-1 deprecation in 2017 following collision attacks. As of 2024, 95% of SSL certificates use SHA-256. Performance: OpenSSL benchmarks show 450 MB/s on modern x86_64 processors vs 180 MB/s for SHA-512 on 32-bit systems.",
+  
+  "Comparative Analysis - SHA-256 vs Alternatives: SHA-256 offers 128-bit security level (2^128 operations for collision). Comparison: SHA-3 (Keccak) uses sponge construction, more resistant to length extension attacks but 20-30% slower; BLAKE2 is faster (twice SHA-256 speed) but less standardized; SHA-1 deprecated due to 2017 collision attacks by Google/CWI (SHAttered). Migration timeline: Major CAs stopped issuing SHA-1 certs in 2016, browsers blocked SHA-1 by 2017. Trade-offs: SHA-256 balance of security (no known vulnerabilities after 20+ years), speed, and widespread support.",
+  
+  "Security Analysis and Vulnerability History: SHA-256 has no known practical attacks as of 2024. Best theoretical attack: 2^252 operations (Keccak team, 2009) vs brute force 2^256. Length extension vulnerability: Mitigated using HMAC or SHA-512/256 truncated variant. Quantum computing threat: Grover's algorithm reduces security to 2^128 operations, requiring 256-bit output minimum. NIST Post-Quantum Cryptography project (2016-present) evaluating quantum-resistant alternatives. Current recommendation: SHA-256 secure until at least 2030, SHA-384/512 for long-term security (30+ years).",
+  
+  "Implementation Best Practices: Use established libraries: OpenSSL (C/C++), hashlib (Python), crypto (Node.js), Java.security.MessageDigest. Avoid: Rolling your own crypto, using MD5/SHA-1 for security, applying single hash to passwords (use Argon2/bcrypt/PBKDF2 instead). Common pitfalls: Not validating input length (DoS via large inputs), comparing hashes with == instead of constant-time comparison (timing attacks), forgetting to include salt in password hashing. Production example: Django uses PBKDF2-SHA256 with 150,000 iterations by default. Hardware acceleration: AES-NI instructions provide 2-3x speedup for SHA-256 on Intel/AMD CPUs.",
+  
+  "Industry Standards and Compliance: NIST FIPS 180-4 (2015) is current specification. Required by: HIPAA for medical records (when using HMAC), PCI-DSS 3.2+ for payment data, FISMA for US federal systems. Compliance requirements typically mandate SHA-256 minimum for new deployments. EU GDPR Article 32 recommends 'state of the art' encryption (interpreted as SHA-256+). Common Criteria EAL4+ certification available for hardware implementations. ISO/IEC 10118-3:2018 international standard. NIST deprecation timeline: No plans to deprecate SHA-256; SHA-1 fully deprecated 2030, MD5 already prohibited for security use.",
+  
+  "Future Trends and Post-Quantum Landscape: Quantum computers with 4000+ logical qubits could break SHA-256 via Grover's algorithm (estimated 2035-2040 timeframe per IBM roadmap). NIST's post-quantum candidates: SPHINCS+ (stateless hash-based signatures) selected 2022. Hybrid approaches emerging: SHA-256 + lattice-based schemes for transition period. Research focus: Homomorphic hashing for privacy-preserving computation, hardware acceleration for IoT devices, zero-knowledge proofs using hash functions. Academic interest: Collision resistance proofs, quantum algorithm analysis, side-channel attack mitigation. Industry migration plans: Google Project Zero tracking quantum threats, major cloud providers adding quantum-safe options by 2025."
+]
 
-Make every slide information-dense with specific, actionable, and technically accurate content.
-Include real tool names, framework names, standards, statistics, and case studies wherever possible.
+EXAMPLE OF POOR CONTENT (too generic, avoid this):
+"SHA-256 is a cryptographic hash function. It is used for security purposes in many applications. It is considered secure and widely used. Organizations use it to protect data. It has some advantages over older algorithms."
+
+Generate slides with the level of detail shown in the EXCELLENT example. Every slide must be information-dense, technically precise, and rich with specific details, examples, and data.
 """
     
     try:
