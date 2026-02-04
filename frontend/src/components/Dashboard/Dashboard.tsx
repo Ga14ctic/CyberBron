@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, CreditCard, ClipboardCheck, MessageSquare, TrendingUp } from 'lucide-react';
+import { BookOpen, CreditCard, ClipboardCheck, MessageSquare, TrendingUp, Target, Award, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Dashboard() {
@@ -11,15 +11,35 @@ export default function Dashboard() {
     totalQuizzes: 0,
     studyStreak: 0,
   });
+  const [flashcardStats, setFlashcardStats] = useState({
+    total_flashcards: 0,
+    due_today: 0,
+    mastered: 0,
+    reviewed_today: 0,
+    average_ease_factor: 2.5,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // TODO: Fetch actual stats from API
+        // Fetch flashcard stats
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/flashcards/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setFlashcardStats(data);
+        }
+        
+        // TODO: Fetch other stats from API
         setStats({
           totalNotes: 12,
-          totalFlashcards: 45,
+          totalFlashcards: flashcardStats.total_flashcards,
           totalQuizzes: 8,
           studyStreak: 7,
         });
@@ -139,6 +159,68 @@ export default function Dashboard() {
               <p className="text-gray-400 text-sm">{action.description}</p>
             </Link>
           ))}
+        </div>
+      </div>
+
+      {/* Spaced Repetition Dashboard */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-cyber-primary mb-4 flex items-center gap-2">
+          <Target className="w-7 h-7" />
+          Spaced Repetition Progress
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="card bg-gradient-to-br from-cyber-gray to-cyber-lightgray">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-300 text-sm mb-1">Due Today</p>
+                <p className="text-4xl font-bold text-cyber-primary">{flashcardStats.due_today}</p>
+                <p className="text-xs text-gray-400 mt-1">cards to review</p>
+              </div>
+              <Calendar className="w-12 h-12 text-cyber-primary opacity-40" />
+            </div>
+            {flashcardStats.due_today > 0 && (
+              <Link to="/flashcards" className="mt-4 btn-primary text-sm w-full text-center block">
+                Start Review Session
+              </Link>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Mastered</p>
+                <p className="text-3xl font-bold text-green-400">{flashcardStats.mastered}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {flashcardStats.total_flashcards > 0 
+                    ? `${Math.round((flashcardStats.mastered / flashcardStats.total_flashcards) * 100)}%` 
+                    : '0%'}
+                </p>
+              </div>
+              <Award className="w-12 h-12 text-green-400 opacity-50" />
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Reviewed Today</p>
+                <p className="text-3xl font-bold text-blue-400">{flashcardStats.reviewed_today}</p>
+                <p className="text-xs text-gray-500 mt-1">cards completed</p>
+              </div>
+              <CreditCard className="w-12 h-12 text-blue-400 opacity-50" />
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Avg. Ease Factor</p>
+                <p className="text-3xl font-bold text-purple-400">{flashcardStats.average_ease_factor.toFixed(2)}</p>
+                <p className="text-xs text-gray-500 mt-1">difficulty rating</p>
+              </div>
+              <TrendingUp className="w-12 h-12 text-purple-400 opacity-50" />
+            </div>
+          </div>
         </div>
       </div>
 

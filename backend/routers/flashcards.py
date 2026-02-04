@@ -348,3 +348,79 @@ async def generate_flashcards(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate flashcards"
         )
+
+
+@router.get("/flashcards/stats")
+async def get_flashcard_stats(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get flashcard statistics for spaced repetition dashboard.
+    
+    Returns:
+    - Total flashcards
+    - Due today count
+    - Mastered count (high ease factor)
+    - Review streak
+    - Average ease factor
+    """
+    try:
+        from datetime import datetime, timezone
+        
+        # Total flashcards
+        total_query = select(func.count()).where(Flashcard.user_id == current_user.id)
+        result = await db.execute(total_query)
+        total = result.scalar()
+        
+        # Due today
+        now = datetime.now(timezone.utc)
+        due_query = select(func.count()).where(
+            Flashcard.user_id == current_user.id,
+            Flashcard.next_review <= now
+        )
+        result = await db.execute(due_query)
+        due_today = result.scalar()
+        
+        # Mastered cards (ease_factor >= 250, review_count >= 5)
+        mastered_query = select(func.count()).where(
+            Flashcard.user_id == current_user.id,
+            Flashcard.ease_factor >= 250,
+            Flashcard.review_count >= 5
+        )
+        result = await db.execute(mastered_query)
+        mastered = result.scalar()
+        
+        # Average ease factor
+        avg_query = select(func.avg(Flashcard.ease_factor)).where(
+            Flashcard.user_id == current_user.id
+        )
+        result = await db.execute(avg_query)
+        avg_ease = result.scalar() or 250
+        
+        # Reviewed today count
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        reviewed_today_query = select(func.count()).where(
+            Flashcard.user_id == current_user.id,
+            Flashcard.updated_at >= today_start
+        )
+        result = await db.execute(reviewed_today_query)
+        reviewed_today = result.scalar()
+        
+        logger.info(f"Retrieved flashcard stats for user {current_user.username}")
+        
+        return {
+            "total_flashcards": total,
+            "due_today": due_today,
+            "mastered": mastered,
+            "reviewed_today": reviewed_today,
+            "average_ease_factor": round(avg_ease / 100, 2),
+            "decks": []  # TODO: Add deck-specific stats
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting flashcard stats: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get flashcard statistics"
+        )

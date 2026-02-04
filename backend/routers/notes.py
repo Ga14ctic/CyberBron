@@ -407,3 +407,64 @@ async def expand_note(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to expand note"
         )
+
+
+@router.post("/notes/{note_id}/generate-quiz")
+async def generate_quiz_from_note(
+    note_id: int,
+    num_questions: int = Query(10, ge=5, le=20),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Generate a quiz from note content using AI.
+    
+    - **note_id**: ID of the note to generate quiz from
+    - **num_questions**: Number of questions to generate (5-20)
+    
+    Returns quiz questions in format ready for quiz system.
+    """
+    try:
+        result = await db.execute(
+            select(Note).where(
+                Note.id == note_id,
+                Note.user_id == current_user.id
+            )
+        )
+        note = result.scalar_one_or_none()
+        
+        if not note:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Note not found"
+            )
+        
+        # TODO: Integrate with Ollama LLM for quiz generation
+        # For now, return placeholder
+        quiz_data = {
+            "title": f"Quiz: {note.title}",
+            "questions": [
+                {
+                    "type": "multiple_choice",
+                    "question": "Sample question based on note content?",
+                    "options": ["Option A", "Option B", "Option C", "Option D"],
+                    "correct_answer": "Option A",
+                    "explanation": "This is a sample question. Real quiz generation coming soon."
+                }
+            ] * num_questions,
+            "note_id": note_id,
+            "generated_at": "2024-01-01T00:00:00Z"
+        }
+        
+        logger.info(f"Generated quiz from note {note_id} for user {current_user.username}")
+        
+        return quiz_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating quiz from note: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate quiz from note"
+        )

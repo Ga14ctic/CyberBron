@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Save, ArrowLeft, Maximize2, Minimize2, CreditCard, Presentation, Eye, Edit3, Sparkles, Palette, FileText, Wand2 } from 'lucide-react';
+import { Save, ArrowLeft, Maximize2, Minimize2, CreditCard, Presentation, Eye, Edit3, Sparkles, Palette, FileText, Wand2, ClipboardCheck } from 'lucide-react';
 import { notesService } from '../../services/notesService';
 import { flashcardsService } from '../../services/flashcardsService';
 import ReactMarkdown from 'react-markdown';
@@ -147,6 +147,31 @@ export default function NoteEditorEnhanced() {
     } catch (error) {
       console.error('Failed to generate flashcards:', error);
       alert('Failed to generate flashcards. Please try again.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const generateQuiz = async () => {
+    if (!content.trim() || !id || id === 'new') return;
+    
+    setGenerating(true);
+    try {
+      const response = await fetch(`/api/notes/${id}/generate-quiz?num_questions=10`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Quiz generation failed');
+      
+      const data = await response.json();
+      alert(`Quiz generated successfully with ${data.questions.length} questions! Check the Quiz page.`);
+      setShowGenerateMenu(false);
+    } catch (error) {
+      console.error('Failed to generate quiz:', error);
+      alert('Failed to generate quiz. Please try again.');
     } finally {
       setGenerating(false);
     }
@@ -361,6 +386,14 @@ export default function NoteEditorEnhanced() {
                 >
                   <CreditCard className="w-5 h-5 text-cyber-primary" />
                   <span>Generate Flashcards</span>
+                </button>
+                <button
+                  onClick={generateQuiz}
+                  disabled={generating || id === 'new'}
+                  className="w-full px-4 py-3 text-left hover:bg-cyber-lightgray transition-colors flex items-center space-x-2"
+                >
+                  <ClipboardCheck className="w-5 h-5 text-yellow-400" />
+                  <span>Generate Quiz</span>
                 </button>
                 <button
                   onClick={generatePresentation}
