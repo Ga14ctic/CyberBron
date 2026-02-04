@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ClipboardCheck, Plus, Trophy, CheckCircle, XCircle } from 'lucide-react';
+import { ClipboardCheck, Plus, Trophy, CheckCircle, XCircle, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { quizService } from '../../services/quizService';
-import { Quiz } from '../../types';
+import { notesService } from '../../services/notesService';
+import { Quiz, Note } from '../../types';
 
 export default function QuizTake() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -13,10 +15,21 @@ export default function QuizTake() {
   const [generating, setGenerating] = useState(false);
   const [generateTopic, setGenerateTopic] = useState('');
   const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   useEffect(() => {
     loadQuizzes();
+    loadNotes();
   }, []);
+
+  const loadNotes = async () => {
+    try {
+      const data = await notesService.getNotes();
+      setNotes(data);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
+    }
+  };
 
   const loadQuizzes = async () => {
     try {
@@ -252,15 +265,36 @@ export default function QuizTake() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-cyber-primary">Quizzes</h1>
-        <button
-          onClick={() => setShowGenerateForm(!showGenerateForm)}
-          className="btn-primary flex items-center space-x-2"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Generate Quiz</span>
-        </button>
+        <h1 className="text-3xl font-bold text-cyber-primary flex items-center gap-2">
+          <ClipboardCheck className="w-8 h-8" />
+          Quizzes
+        </h1>
       </div>
+
+      {/* Generate from Notes Banner */}
+      {notes.length > 0 && (
+        <div className="card bg-gradient-to-r from-cyber-primary/10 to-cyber-secondary/10 border-2 border-cyber-primary/30 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-cyber-primary mb-2 flex items-center gap-2">
+                <Sparkles className="w-6 h-6" />
+                Generate Quizzes from Your Notes
+              </h3>
+              <p className="text-gray-300 mb-4">
+                You have {notes.length} note{notes.length !== 1 ? 's' : ''} ready. 
+                Generate quizzes with 5-20 questions directly from any note with AI-powered content.
+              </p>
+              <div className="flex gap-3">
+                <Link to="/" className="btn-primary flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  View Notes
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showGenerateForm && (
         <div className="card mb-8">
