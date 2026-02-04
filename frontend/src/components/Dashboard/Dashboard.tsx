@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, CreditCard, ClipboardCheck, MessageSquare, TrendingUp, Target, Award, Calendar } from 'lucide-react';
+import { BookOpen, CreditCard, ClipboardCheck, MessageSquare, TrendingUp, Target, Award, Calendar, BarChart3, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Dashboard() {
@@ -70,14 +70,102 @@ export default function Dashboard() {
 
   const quickActions = [
     {
-      title: 'Start Chat',
-      description: 'Ask questions and learn with AI',
-      icon: MessageSquare,
-      link: '/chat',
+      title: 'View Notes',
+      description: 'Your knowledge hub',
+      icon: BookOpen,
+      link: '/',
       color: 'text-cyber-primary',
     },
     {
-      title: 'Create Note',
+      title: 'Chat with AI',
+      description: 'Ask questions and learn',
+      icon: MessageSquare,
+      link: '/chat',
+      color: 'text-cyber-secondary',
+    },
+    {
+      title: 'Study Flashcards',
+      description: 'Review your cards',
+      icon: CreditCard,
+      link: '/flashcards',
+      color: 'text-purple-400',
+    },
+    {
+      title: 'Take Quiz',
+      description: 'Test your knowledge',
+      icon: ClipboardCheck,
+      link: '/quiz',
+      color: 'text-yellow-400',
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-cyber-primary mb-2 flex items-center gap-3">
+          <BarChart3 className="w-8 h-8" />
+          Analytics & Insights
+        </h1>
+        <p className="text-gray-400">Track your learning progress and note activities</p>
+      </div>
+
+      {/* Note-Centric Stats */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-cyber-primary mb-4">Notes Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="card bg-gradient-to-br from-cyber-gray to-cyber-lightgray">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Total Notes</p>
+                <p className="text-3xl font-bold text-cyber-primary">{stats.totalNotes}</p>
+                <p className="text-xs text-gray-500 mt-1">Your knowledge base</p>
+              </div>
+              <FileText className="w-12 h-12 text-cyber-primary opacity-50" />
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Generated Content</p>
+                <p className="text-3xl font-bold text-cyber-secondary">{stats.totalFlashcards + stats.totalQuizzes}</p>
+                <p className="text-xs text-gray-500 mt-1">From your notes</p>
+              </div>
+              <TrendingUp className="w-12 h-12 text-cyber-secondary opacity-50" />
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Flashcards</p>
+                <p className="text-3xl font-bold text-purple-400">{stats.totalFlashcards}</p>
+                <p className="text-xs text-gray-500 mt-1">Study materials</p>
+              </div>
+              <CreditCard className="w-12 h-12 text-purple-400 opacity-50" />
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Study Streak</p>
+                <p className="text-3xl font-bold text-yellow-400">{stats.studyStreak} days</p>
+                <p className="text-xs text-gray-500 mt-1">Keep it up!</p>
+              </div>
+              <TrendingUp className="w-12 h-12 text-yellow-400 opacity-50" />
+            </div>
+          </div>
+        </div>
+      </div>
       description: 'Take notes from your learning',
       icon: BookOpen,
       link: '/notes',
@@ -175,6 +263,20 @@ export default function Dashboard() {
             </Link>
           ))}
         </div>
+      </div>
+
+      <div className="card bg-gradient-to-r from-cyber-gray to-cyber-lightgray mb-8">
+        <h2 className="text-2xl font-bold text-cyber-primary mb-4">
+          💡 Tip: Start with Notes
+        </h2>
+        <p className="text-gray-300 mb-4">
+          Everything in CyberBron starts with your notes. Create comprehensive notes on your topics, 
+          then use our AI tools to generate flashcards, quizzes, and presentations directly from your notes.
+        </p>
+        <Link to="/" className="btn-primary inline-flex items-center space-x-2">
+          <BookOpen className="w-5 h-5" />
+          <span>Go to Notes</span>
+        </Link>
       </div>
 
       {/* Spaced Repetition Dashboard */}

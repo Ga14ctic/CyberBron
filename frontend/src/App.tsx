@@ -77,6 +77,17 @@ function App() {
         element={
           <ProtectedRoute>
             <AppLayout>
+              <NotesList />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
               <Dashboard />
             </AppLayout>
           </ProtectedRoute>
@@ -89,17 +100,6 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <ChatInterface />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/notes"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <NotesList />
             </AppLayout>
           </ProtectedRoute>
         }
