@@ -34,17 +34,32 @@ export default function Dashboard() {
         if (response.ok) {
           const data = await response.json();
           setFlashcardStats(data);
+          
+          // Update stats with actual flashcard count
+          setStats({
+            totalNotes: 12,  // TODO: Fetch from API
+            totalFlashcards: data.total_flashcards,
+            totalQuizzes: 8,  // TODO: Fetch from API
+            studyStreak: 7,  // TODO: Fetch from API
+          });
+        } else {
+          // Fallback if API fails
+          setStats({
+            totalNotes: 12,
+            totalFlashcards: 0,
+            totalQuizzes: 8,
+            studyStreak: 7,
+          });
         }
-        
-        // TODO: Fetch other stats from API
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+        // Set fallback stats on error
         setStats({
           totalNotes: 12,
-          totalFlashcards: flashcardStats.total_flashcards,
+          totalFlashcards: 0,
           totalQuizzes: 8,
           studyStreak: 7,
         });
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
       } finally {
         setLoading(false);
       }

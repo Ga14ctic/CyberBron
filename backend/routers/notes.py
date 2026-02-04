@@ -441,6 +441,8 @@ async def generate_quiz_from_note(
         
         # TODO: Integrate with Ollama LLM for quiz generation
         # For now, return placeholder
+        from datetime import datetime, timezone
+        
         quiz_data = {
             "title": f"Quiz: {note.title}",
             "questions": [
@@ -453,7 +455,7 @@ async def generate_quiz_from_note(
                 }
             ] * num_questions,
             "note_id": note_id,
-            "generated_at": "2024-01-01T00:00:00Z"
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
         logger.info(f"Generated quiz from note {note_id} for user {current_user.username}")
