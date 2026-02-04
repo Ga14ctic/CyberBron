@@ -50,6 +50,7 @@ notes:
   storage: "json"
   auto_tag: true
   default_folder: "General"
+  ai_summarization: true  ai_expansion: true  auto_save: true  markdown_support: true  themes:    - "cyber"    - "dark"    - "light"
 
 # Flashcards Settings - NEW
 flashcards:

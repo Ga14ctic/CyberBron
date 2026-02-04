@@ -311,3 +311,99 @@ async def delete_note(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete note"
         )
+
+
+@router.post("/notes/{note_id}/summarize")
+async def summarize_note(
+    note_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    AI-powered summarization of note content.
+    Returns a concise summary of the note.
+    """
+    try:
+        result = await db.execute(
+            select(Note).where(
+                Note.id == note_id,
+                Note.user_id == current_user.id
+            )
+        )
+        note = result.scalar_one_or_none()
+        
+        if not note:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Note not found"
+            )
+        
+        # TODO: Integrate with Ollama LLM for summarization
+        # For now, return placeholder
+        summary = f"Summary of '{note.title}': [AI summarization coming soon]"
+        
+        logger.info(f"Summarized note {note_id} for user {current_user.username}")
+        
+        return {
+            "note_id": note_id,
+            "title": note.title,
+            "summary": summary
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error summarizing note: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to summarize note"
+        )
+
+
+@router.post("/notes/{note_id}/expand")
+async def expand_note(
+    note_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    AI-powered expansion of note content.
+    Adds more detail, context, and explanations to the note.
+    """
+    try:
+        result = await db.execute(
+            select(Note).where(
+                Note.id == note_id,
+                Note.user_id == current_user.id
+            )
+        )
+        note = result.scalar_one_or_none()
+        
+        if not note:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Note not found"
+            )
+        
+        # TODO: Integrate with Ollama LLM for expansion
+        # For now, return placeholder
+        expanded_content = f"{note.content}\n\n[AI expansion coming soon - will add detailed explanations, examples, and context]"
+        
+        logger.info(f"Expanded note {note_id} for user {current_user.username}")
+        
+        return {
+            "note_id": note_id,
+            "title": note.title,
+            "original_length": len(note.content),
+            "expanded_content": expanded_content,
+            "expanded_length": len(expanded_content)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error expanding note: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to expand note"
+        )
