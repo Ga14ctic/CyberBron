@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageSquare, BookOpen, CreditCard, ClipboardCheck, Shield, BarChart3 } from 'lucide-react';
+import { MessageSquare, BookOpen, CreditCard, ClipboardCheck, Shield, BarChart3 } from 'lucide-react';
 
 const navItems = [
   { to: '/', icon: BookOpen, label: 'Notes', highlight: true },

@@ -166,37 +166,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      description: 'Take notes from your learning',
-      icon: BookOpen,
-      link: '/notes',
-      color: 'text-cyber-secondary',
-    },
-    {
-      title: 'Study Flashcards',
-      description: 'Review your flashcards',
-      icon: CreditCard,
-      link: '/flashcards',
-      color: 'text-purple-400',
-    },
-    {
-      title: 'Take Quiz',
-      description: 'Test your knowledge',
-      icon: ClipboardCheck,
-      link: '/quiz',
-      color: 'text-yellow-400',
-    },
-  ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-cyber-primary mb-2">
           Welcome back, {user?.username}!

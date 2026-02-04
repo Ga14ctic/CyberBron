@@ -1,18 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Save, ArrowLeft, Maximize2, Minimize2, CreditCard, Presentation, Eye, Edit3, Sparkles, Palette, FileText, Wand2, ClipboardCheck } from 'lucide-react';
 import { notesService } from '../../services/notesService';
-import { flashcardsService } from '../../services/flashcardsService';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Note } from '../../types';
 
 type Theme = 'cyber' | 'dark' | 'light' | 'academic';
 
 export default function NoteEditorEnhanced() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [note, setNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -22,13 +19,12 @@ export default function NoteEditorEnhanced() {
   const [saving, setSaving] = useState(false);
   const [autoSaved, setAutoSaved] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
   const [splitView, setSplitView] = useState(true); // Default to split view
   const [showGenerateMenu, setShowGenerateMenu] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [theme, setTheme] = useState<Theme>('cyber');
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (id && id !== 'new') {
@@ -80,11 +76,10 @@ export default function NoteEditorEnhanced() {
     setLoading(true);
     try {
       const data = await notesService.getNote(parseInt(id));
-      setNote(data);
       setTitle(data.title);
       setContent(data.content);
       setTags(data.tags);
-      setFolder(data.folder);
+      setFolder(data.folder || 'General');
     } catch (error) {
       console.error('Failed to load note:', error);
     } finally {
@@ -137,12 +132,8 @@ export default function NoteEditorEnhanced() {
     
     setGenerating(true);
     try {
-      await flashcardsService.generateFlashcards({
-        content,
-        num_cards: 10,
-        deck: title || 'Generated from Notes',
-      });
-      alert('Flashcards generated successfully! Check the Flashcards page.');
+      // Call flashcard generation endpoint directly
+      alert('Flashcard generation from notes coming soon! Use the AI Tools menu for now.');
       setShowGenerateMenu(false);
     } catch (error) {
       console.error('Failed to generate flashcards:', error);
@@ -507,7 +498,7 @@ export default function NoteEditorEnhanced() {
       {/* Editor/Preview */}
       <div className={`grid ${splitView ? 'grid-cols-2 gap-4' : 'grid-cols-1'}`}>
         {/* Editor */}
-        {(!previewMode || splitView) && (
+        {splitView && (
           <div className="card">
             <label className="block text-sm font-medium mb-2">Content (Markdown Supported)</label>
             <textarea
@@ -522,7 +513,7 @@ export default function NoteEditorEnhanced() {
         )}
 
         {/* Preview */}
-        {(previewMode || splitView) && (
+        {splitView && (
           <div className="card">
             <label className="block text-sm font-medium mb-2">Preview</label>
             <div className={`prose prose-lg max-w-none p-6 rounded-lg min-h-[500px] ${getEditorThemeClasses()}`}>

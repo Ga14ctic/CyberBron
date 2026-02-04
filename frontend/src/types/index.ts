@@ -45,6 +45,8 @@ export interface Note {
   title: string;
   content: string;
   tags: string[];
+  folder: string;
+  source: string;
   created_at: string;
   updated_at: string;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, BookOpen, Trash2, Edit, Tag, Clock, FileText, Zap, TrendingUp, FolderOpen } from 'lucide-react';
+import { Plus, Search, BookOpen, Trash2, Edit, Tag, Clock, FileText, Zap, FolderOpen } from 'lucide-react';
 import { notesService } from '../../services/notesService';
 import { Note } from '../../types';
 
@@ -53,7 +53,6 @@ export default function NotesList() {
 
   // Calculate stats
   const totalNotes = notes.length;
-  const recentNotes = notes.slice(0, 3);
   const totalWords = notes.reduce((sum, note) => sum + note.content.split(/\s+/).length, 0);
 
   if (loading) {
@@ -258,54 +257,6 @@ export default function NotesList() {
             </div>
           </div>
         </>
-      )}
-    </div>
-  );
-}
-                  {note.title}
-                </h3>
-                <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Link
-                    to={`/notes/${note.id}`}
-                    className="text-cyber-primary hover:text-cyber-secondary"
-                    aria-label="Edit note"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => deleteNote(note.id)}
-                    className="text-red-400 hover:text-red-500"
-                    aria-label="Delete note"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <p className="text-gray-400 text-sm mb-4 line-clamp-3">
-                {note.content.substring(0, 150)}...
-              </p>
-
-              {note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {note.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center space-x-1 text-xs bg-cyber-lightgray text-cyber-primary px-2 py-1 rounded"
-                    >
-                      <Tag className="w-3 h-3" />
-                      <span>{tag}</span>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="text-xs text-gray-500">
-                Updated {new Date(note.updated_at).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
-        </div>
       )}
     </div>
   );

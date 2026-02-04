@@ -15,8 +15,7 @@ export default function FlashcardStudyEnhanced() {
   const [newCard, setNewCard] = useState({ front: '', back: '', difficulty: 'medium' as const });
   const [showNewCardForm, setShowNewCardForm] = useState(false);
   const [animating, setAnimating] = useState(false);
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [showNotesPrompt, setShowNotesPrompt] = useState(false);
+  const [notesAvailable, setNotesAvailable] = useState<Note[]>([]);
 
   useEffect(() => {
     loadFlashcards();
@@ -26,11 +25,7 @@ export default function FlashcardStudyEnhanced() {
   const loadNotes = async () => {
     try {
       const data = await notesService.getNotes();
-      setNotes(data);
-      // Show notes prompt if no flashcards but have notes
-      if (flashcards.length === 0 && data.length > 0) {
-        setShowNotesPrompt(true);
-      }
+      setNotesAvailable(data);
     } catch (error) {
       console.error('Failed to load notes:', error);
     }
@@ -134,7 +129,7 @@ export default function FlashcardStudyEnhanced() {
       </div>
 
       {/* Generate from Notes Banner */}
-      {notes.length > 0 && (
+      {notesAvailable.length > 0 && (
         <div className="card bg-gradient-to-r from-cyber-primary/10 to-cyber-secondary/10 border-2 border-cyber-primary/30 mb-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -143,7 +138,7 @@ export default function FlashcardStudyEnhanced() {
                 Generate Flashcards from Your Notes
               </h3>
               <p className="text-gray-300 mb-4">
-                You have {notes.length} note{notes.length !== 1 ? 's' : ''} ready. 
+                You have {notesAvailable.length} note{notesAvailable.length !== 1 ? 's' : ''} ready. 
                 Generate up to 100 flashcards per note with varied question types and relational understanding.
               </p>
               <div className="flex gap-3">
