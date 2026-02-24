@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>⚙️ Admin Dashboard</h1>
+  <span class="badge badge-warn">Localhost Only</span>
+</div>
+
+<div class="admin-grid">
+  <!-- System Status -->
+  <div class="card">
+    <h3>📊 System Status</h3>
+    <div class="status-row"><span>Ollama</span>
+      <span class="badge {% if ollama_ok %}badge-ok{% else %}badge-err{% endif %}">
+        {{ "Online" if ollama_ok else "Offline" }}
+      </span>
+    </div>
+    <div class="status-row"><span>Knowledge Base</span>
+      <span class="badge {% if rag_ready %}badge-ok{% else %}badge-warn{% endif %}">
+        {{ "Ready" if rag_ready else "Run ingest.py" }}
+      </span>
+    </div>
+    <div class="status-row"><span>Active Model</span>
+      <span class="badge badge-info">{{ model_name }}</span>
+    </div>
+    <div class="status-row"><span>GPU Queue</span>
+      <span class="badge" id="admin-queue-badge">
+        {% if queue_status.active %}🔴 Busy{% else %}🟢 Free{% endif %}
+      </span>
+    </div>
+    <button class="btn btn-sm btn-secondary mt-1" onclick="refreshStatus()">🔄 Refresh</button>
+  </div>
+
+  <!-- Networking -->
+  <div class="card">
+    <h3>🌐 Network Mode</h3>
+    <p>
+      Current mode:
+      <strong id="net-mode-label">{{ "LAN (0.0.0.0)" if network_mode else "Localhost only" }}</strong>
+    </p>
+    {% if network_mode %}
+    <p>LAN address: <code>http://{{ lan_ip }}:{{ port }}</code></p>
+    <p class="hint">Share this URL with classmates on the same network.</p>
+    {% endif %}
+    <p class="hint">⚠️ Toggling network mode updates config.yaml. Restart the app to rebind the socket.</p>
+    <div class="btn-row">
+      {% if network_mode %}
+      <button class="btn btn-warn" id="disable-net-btn">🔒 Disable LAN</button>
+      {% else %}
+      <button class="btn btn-primary" id="enable-net-btn">🌐 Enable LAN</button>
+      {% endif %}
+    </div>
+    <div id="net-msg" class="status-msg hidden"></div>
+  </div>
+
+  <!-- Document Ingest -->
+  <div class="card">
+    <h3>📥 Ingest Documents</h3>
+    <p class="hint">Upload files to the data/ directory, then run <code>python ingest.py</code> to index them.</p>
+    <p class="hint">Allowed types: .pdf, .docx, .txt, .md, .pptx (max {{ config_max_mb if config_max_mb is defined else 10 }} MB)</p>
+    <form id="ingest-form" enctype="multipart/form-data">
+      <input type="file" id="ingest-file" name="file" accept=".pdf,.docx,.txt,.md,.pptx">
+      <button type="submit" class="btn btn-primary mt-1">Upload File</button>
+    </form>
+    <div id="ingest-msg" class="status-msg hidden"></div>
+  </div>
+
+  <!-- Logs -->
+  <div class="card card-wide">
+    <h3>📋 Application Logs</h3>
+    <div class="log-controls">
+      <select id="log-lines">
+        <option value="50">Last 50 lines</option>
+        <option value="100" selected>Last 100 lines</option>
+        <option value="200">Last 200 lines</option>
+        <option value="500">Last 500 lines</option>
+      </select>
+      <button class="btn btn-sm btn-secondary" id="refresh-logs-btn">🔄 Refresh</button>
+    </div>
+    <pre class="log-output" id="log-output">Loading logs…</pre>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  function refreshStatus() {
+    window.apiFetch('/api/queue/status').then(r => r.json()).then(data => {
+      document.getElementById('admin-queue-badge').textContent = data.active ? '🔴 Busy' : '🟢 Free';
+    }).catch(() => {});
+  }
+  window.refreshStatus = refreshStatus;
+
+  // Network toggle
+  const enableBtn = document.getElementById('enable-net-btn');
+  const disableBtn = document.getElementById('disable-net-btn');
+  const netMsg = document.getElementById('net-msg');
+
+  function toggleNet(action) {
+    const fd = new FormData();
+    fd.append('action', action);
+    window.apiFetch('/admin/network', {method: 'POST', body: fd})
+      .then(r => r.json())
+      .then(data => {
+        netMsg.textContent = data.message || (data.error || 'Done');
+        netMsg.className = 'status-msg ' + (data.error ? 'error' : 'success');
+        document.getElementById('net-mode-label').textContent = data.network_mode ? 'LAN (0.0.0.0)' : 'Localhost only';
+      })
+      .catch(() => { netMsg.textContent = 'Request failed'; netMsg.className = 'status-msg error'; });
+  }
+
+  if (enableBtn) enableBtn.addEventListener('click', () => toggleNet('enable'));
+  if (disableBtn) disableBtn.addEventListener('click', () => toggleNet('disable'));
+
+  // Ingest form
+  document.getElementById('ingest-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const file = document.getElementById('ingest-file').files[0];
+    if (!file) { return; }
+    const fd = new FormData();
+    fd.append('file', file);
+    const msg = document.getElementById('ingest-msg');
+    msg.textContent = 'Uploading…';
+    msg.className = 'status-msg';
+    window.apiFetch('/admin/ingest', {method: 'POST', body: fd})
+      .then(r => r.json())
+      .then(data => {
+        msg.textContent = data.message || data.error;
+        msg.className = 'status-msg ' + (data.error ? 'error' : 'success');
+      })
+      .catch(() => { msg.textContent = 'Upload failed'; msg.className = 'status-msg error'; });
+  });
+
+  // Logs
+  function loadLogs() {
+    const n = document.getElementById('log-lines').value;
+    window.apiFetch('/admin/logs?n=' + n)
+      .then(r => r.json())
+      .then(data => {
+        const pre = document.getElementById('log-output');
+        pre.textContent = data.lines ? data.lines.join('\n') : 'No logs.';
+        pre.scrollTop = pre.scrollHeight;
+      })
+      .catch(() => { document.getElementById('log-output').textContent = 'Could not load logs.'; });
+  }
+
+  document.getElementById('refresh-logs-btn').addEventListener('click', loadLogs);
+  document.getElementById('log-lines').addEventListener('change', loadLogs);
+
+  loadLogs();
+  setInterval(refreshStatus, 5000);
+})();
+</script>
+{% endblock %}

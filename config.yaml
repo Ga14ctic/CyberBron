@@ -1,5 +1,27 @@
 # CyberBron Configuration File
 
+# Flask Settings
+flask:
+  secret_key: "change-me-in-production-use-env-var"
+  network_mode: false
+  host: "127.0.0.1"
+  port: 5000
+  debug: false
+
+# Security Settings
+security:
+  access_token: "cyberbron-access"
+  max_input_length: 5000
+  max_file_size_mb: 10
+  allowed_upload_types:
+    - ".pdf"
+    - ".docx"
+    - ".txt"
+    - ".md"
+    - ".pptx"
+  rate_limit_ai: "5 per minute"
+  rate_limit_global: "60 per minute"
+
 # Model Settings
 models:
   llm: "mistral:latest"  # Changed from llama3 to mistral as required

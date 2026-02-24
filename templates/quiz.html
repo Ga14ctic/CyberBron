@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Quiz{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📊 Quiz</h1>
+  <div class="page-actions">
+    <button class="btn btn-secondary" id="generate-quiz-btn">🤖 Generate Quiz</button>
+  </div>
+</div>
+
+<!-- Quiz list view -->
+<div id="quiz-list-view">
+  <div id="quizzes-container" class="quiz-list"></div>
+  <div id="quiz-empty" class="empty-state hidden">
+    <div class="empty-icon">📊</div>
+    <h3>No quizzes yet</h3>
+    <p>Generate a quiz from text using the button above.</p>
+  </div>
+</div>
+
+<!-- Quiz taking view -->
+<div id="quiz-take-view" class="hidden">
+  <div class="quiz-header">
+    <h2 id="quiz-title"></h2>
+    <div class="quiz-meta">
+      <span id="quiz-progress">Question 1 of 10</span>
+      <span id="quiz-score-live">Score: 0</span>
+    </div>
+    <button class="btn btn-sm btn-secondary" id="quit-quiz-btn">✕ Quit</button>
+  </div>
+
+  <div class="question-card" id="question-card">
+    <div class="question-num" id="q-num">Q1</div>
+    <div class="question-text" id="q-text"></div>
+
+    <!-- Multiple choice options -->
+    <div id="mc-options" class="mc-options hidden"></div>
+
+    <!-- True/False options -->
+    <div id="tf-options" class="tf-options hidden">
+      <button class="tf-btn" data-val="true">True</button>
+      <button class="tf-btn" data-val="false">False</button>
+    </div>
+
+    <!-- Short answer -->
+    <div id="sa-input" class="sa-input hidden">
+      <textarea id="sa-answer" maxlength="1000" rows="3" placeholder="Type your answer…"></textarea>
+    </div>
+
+    <div class="question-actions">
+      <button class="btn btn-primary" id="submit-answer-btn">Submit Answer</button>
+    </div>
+
+    <div id="answer-feedback" class="answer-feedback hidden">
+      <div id="feedback-result"></div>
+      <div id="feedback-explanation" class="feedback-explanation"></div>
+      <button class="btn btn-primary" id="next-question-btn">Next Question →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz results view -->
+<div id="quiz-results-view" class="hidden">
+  <div class="results-card">
+    <div class="results-icon" id="results-icon">🏆</div>
+    <h2>Quiz Complete!</h2>
+    <div class="results-score" id="results-score"></div>
+    <div class="results-breakdown" id="results-breakdown"></div>
+    <div class="results-actions">
+      <button class="btn btn-primary" id="retake-quiz-btn">🔄 Retake</button>
+      <button class="btn btn-secondary" id="back-to-list-btn">← Back to Quizzes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate quiz modal -->
+<div id="gen-quiz-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🤖 Generate Quiz</h3>
+      <button class="modal-close" id="close-quiz-gen-btn">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Quiz title</label>
+      <input type="text" id="gen-quiz-title" maxlength="300" placeholder="Quiz title…" value="Generated Quiz">
+      <label>Paste text to generate questions from</label>
+      <textarea id="gen-quiz-text" maxlength="10000" rows="6" placeholder="Paste notes or text…"></textarea>
+      <div class="form-row">
+        <div>
+          <label>Number of questions</label>
+          <input type="number" id="gen-quiz-count" value="10" min="1" max="30">
+        </div>
+        <div>
+          <label>Difficulty</label>
+          <select id="gen-quiz-diff">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <div>
+          <label>Topic (optional)</label>
+          <input type="text" id="gen-quiz-topic" maxlength="100" placeholder="e.g., Network Security">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="start-quiz-gen-btn">🤖 Generate</button>
+      <button class="btn btn-secondary" id="cancel-quiz-gen-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}
