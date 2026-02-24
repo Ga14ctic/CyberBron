@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+  <!-- Sidebar: Conversations -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span>💬 Conversations</span>
+      <button class="btn btn-sm btn-primary" id="new-chat-btn">+ New</button>
+    </div>
+    <div class="sidebar-list" id="conv-list">
+      {% for c in conversations %}
+      <div class="conv-item {% if loop.first %}active{% endif %}" data-id="{{ c }}">
+        <span class="conv-preview">{{ previews[c] }}</span>
+        <button class="conv-del" data-id="{{ c }}" title="Delete">✕</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="sidebar-status">
+      <div class="status-row">
+        <span>Ollama</span>
+        <span class="badge {% if ollama_ok %}badge-ok{% else %}badge-err{% endif %}">
+          {{ "Online" if ollama_ok else "Offline" }}
+        </span>
+      </div>
+      <div class="status-row">
+        <span>Knowledge Base</span>
+        <span class="badge {% if rag_ready %}badge-ok{% else %}badge-warn{% endif %}">
+          {{ "Ready" if rag_ready else "Missing" }}
+        </span>
+      </div>
+      <div class="status-row">
+        <span>Model</span>
+        <span class="badge badge-info">{{ model_name.split(':')[0] }}</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main chat area -->
+  <div class="chat-main">
+    {% if not ollama_ok %}
+    <div class="alert alert-error">
+      ⚠️ Ollama is not running. Start Ollama at <code>{{ "http://localhost:11434" }}</code> and refresh.
+    </div>
+    {% endif %}
+    {% if not rag_ready %}
+    <div class="alert alert-warn">
+      ⚠️ Knowledge base missing. Run <code>python ingest.py</code> to index documents.
+    </div>
+    {% endif %}
+
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-welcome">
+        <div class="welcome-icon">🛡️</div>
+        <h2>CyberBron</h2>
+        <p>Your AI-powered cybersecurity study assistant.</p>
+        <p class="welcome-hint">Ask me anything about cybersecurity, or use the tools in the navigation.</p>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="search-indicator" id="search-indicator" style="display:none">
+        🌐 Searching the web…
+      </div>
+      <div class="input-row">
+        <textarea
+          id="chat-input"
+          placeholder="Ask a cybersecurity question…"
+          rows="1"
+          maxlength="{{ config_max_input if config_max_input is defined else 5000 }}"
+        ></textarea>
+        <button id="send-btn" class="btn btn-primary">Send</button>
+      </div>
+      <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

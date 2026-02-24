@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Flashcards{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🎴 Flashcards</h1>
+  <div class="page-actions">
+    <button class="btn btn-primary" id="create-card-btn">+ Create Card</button>
+    <button class="btn btn-secondary" id="generate-cards-btn">🤖 Generate</button>
+  </div>
+</div>
+
+<!-- Deck selector -->
+<div class="deck-bar">
+  <label>Deck:</label>
+  <select id="deck-select">
+    <option value="">All Decks</option>
+  </select>
+  <span id="deck-count" class="badge badge-info">0 cards</span>
+  <button class="btn btn-sm btn-primary" id="study-btn">📖 Study</button>
+</div>
+
+<!-- Cards grid -->
+<div id="cards-grid" class="cards-grid"></div>
+
+<!-- Study mode overlay -->
+<div id="study-overlay" class="overlay hidden">
+  <div class="study-container">
+    <div class="study-header">
+      <span id="study-progress">Card 1 of 10</span>
+      <button class="btn btn-sm btn-secondary" id="end-study-btn">✕ End Study</button>
+    </div>
+    <div class="flashcard-wrapper" id="flashcard-wrapper">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-front">
+          <div class="card-label">Question</div>
+          <div class="card-text" id="card-question"></div>
+          <button class="btn btn-primary flip-btn" id="flip-btn">👁 Reveal Answer</button>
+        </div>
+        <div class="flashcard-back">
+          <div class="card-label">Answer</div>
+          <div class="card-text" id="card-answer"></div>
+          <div class="difficulty-buttons">
+            <button class="btn btn-danger diff-btn" data-diff="hard">😓 Hard</button>
+            <button class="btn btn-warn diff-btn" data-diff="medium">🤔 Medium</button>
+            <button class="btn btn-success diff-btn" data-diff="easy">✅ Easy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create/edit modal -->
+<div id="card-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title">Create Flashcard</h3>
+      <button class="modal-close" id="close-modal-btn">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Question</label>
+      <textarea id="modal-question" maxlength="2000" rows="3" placeholder="Enter question…"></textarea>
+      <label>Answer</label>
+      <textarea id="modal-answer" maxlength="5000" rows="4" placeholder="Enter answer…"></textarea>
+      <label>Deck</label>
+      <input type="text" id="modal-deck" maxlength="100" placeholder="Deck name" value="General">
+      <label>Topic (optional)</label>
+      <input type="text" id="modal-topic" maxlength="100" placeholder="Topic">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="save-card-btn">💾 Save</button>
+      <button class="btn btn-secondary" id="cancel-card-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate modal -->
+<div id="gen-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🤖 Generate Flashcards</h3>
+      <button class="modal-close" id="close-gen-btn">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Paste text to generate cards from</label>
+      <textarea id="gen-text" maxlength="10000" rows="6" placeholder="Paste notes, article, or any text…"></textarea>
+      <div class="form-row">
+        <div>
+          <label>Number of cards</label>
+          <input type="number" id="gen-count" value="10" min="1" max="30">
+        </div>
+        <div>
+          <label>Deck name</label>
+          <input type="text" id="gen-deck" maxlength="100" value="Generated">
+        </div>
+        <div>
+          <label>Topic (optional)</label>
+          <input type="text" id="gen-topic" maxlength="100" placeholder="e.g., Cryptography">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="start-gen-btn">🤖 Generate</button>
+      <button class="btn btn-secondary" id="cancel-gen-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/flashcards.js') }}"></script>
+{% endblock %}

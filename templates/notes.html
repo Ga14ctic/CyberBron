@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Notes{% endblock %}
+
+{% block content %}
+<div class="page-layout two-col">
+  <!-- Notes list -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span>📝 Notes</span>
+      <button class="btn btn-sm btn-primary" id="new-note-btn">+ New</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="note-search" placeholder="Search notes…" maxlength="200">
+    </div>
+    <div id="notes-list" class="sidebar-list"></div>
+  </aside>
+
+  <!-- Editor -->
+  <div class="editor-area">
+    <div id="note-editor" class="hidden">
+      <div class="editor-header">
+        <input type="text" id="note-title" class="editor-title" placeholder="Note title…" maxlength="300">
+        <div class="editor-actions">
+          <button class="btn btn-primary" id="save-note-btn">💾 Save</button>
+          <button class="btn btn-danger" id="delete-note-btn">🗑️ Delete</button>
+          <button class="btn btn-secondary" id="cancel-note-btn">✕ Cancel</button>
+        </div>
+      </div>
+      <div class="editor-meta">
+        <input type="text" id="note-folder" placeholder="Folder" maxlength="100">
+        <input type="text" id="note-tags" placeholder="Tags (comma separated)" maxlength="500">
+      </div>
+      <textarea id="note-content" class="editor-content" placeholder="Write your note here…" maxlength="50000"></textarea>
+    </div>
+
+    <div id="note-empty" class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No note selected</h3>
+      <p>Select a note from the list or create a new one.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}CyberBron{% endblock %} — AI Cybersecurity Study Platform</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar">
+    <a class="brand" href="{{ url_for('index') }}">🛡️ CyberBron</a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>💬 Chat</a></li>
+      <li><a href="{{ url_for('notes_page') }}" {% if request.endpoint == 'notes_page' %}class="active"{% endif %}>📝 Notes</a></li>
+      <li><a href="{{ url_for('flashcards_page') }}" {% if request.endpoint == 'flashcards_page' %}class="active"{% endif %}>🎴 Flashcards</a></li>
+      <li><a href="{{ url_for('quiz_page') }}" {% if request.endpoint == 'quiz_page' %}class="active"{% endif %}>📊 Quiz</a></li>
+      <li><a href="{{ url_for('presentations_page') }}" {% if request.endpoint == 'presentations_page' %}class="active"{% endif %}>🎯 Slides</a></li>
+      <li><a href="{{ url_for('admin') }}" {% if request.endpoint == 'admin' %}class="active"{% endif %} id="admin-link">⚙️ Admin</a></li>
+    </ul>
+    <div class="nav-status">
+      <span id="gpu-status" class="status-badge">GPU free</span>
+      {% if network_mode is defined and network_mode %}<span class="status-badge net">🌐 LAN</span>{% endif %}
+    </div>
+  </nav>
+
+  {% if error_code is defined %}
+  <div class="container">
+    <div class="error-box">
+      <h2>{{ error_code }}</h2>
+      <p>{{ error_msg }}</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary">Go Home</a>
+    </div>
+  </div>
+  {% else %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

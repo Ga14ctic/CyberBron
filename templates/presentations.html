@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Presentations{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🎯 Presentation Generator</h1>
+</div>
+
+<div class="page-layout two-col-asym">
+  <!-- Generator form -->
+  <div class="generator-form card">
+    <h3>Configure Presentation</h3>
+    <div class="form-group">
+      <label>Topic <span class="required">*</span></label>
+      <input type="text" id="pres-topic" maxlength="500" placeholder="e.g., Introduction to Network Security">
+    </div>
+    <div class="form-group">
+      <label>Custom Content (optional)</label>
+      <textarea id="pres-content" maxlength="10000" rows="4" placeholder="Paste notes or outlines to base slides on…"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Slides</label>
+        <input type="number" id="pres-slides" value="7" min="3" max="30">
+      </div>
+      <div class="form-group">
+        <label>Theme</label>
+        <select id="pres-theme">
+          {% for t in themes %}
+          <option value="{{ t }}">{{ t.capitalize() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Detail Level</label>
+        <select id="pres-detail">
+          <option value="Brief">Brief</option>
+          <option value="Moderate" selected>Moderate</option>
+          <option value="Detailed">Detailed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" id="pres-search"> 🌐 Enable web research
+      </label>
+    </div>
+    <button class="btn btn-primary btn-full" id="generate-pres-btn">🎨 Generate Presentation</button>
+    <div id="pres-status" class="status-msg hidden"></div>
+  </div>
+
+  <!-- Recent presentations -->
+  <div class="recent-pres card">
+    <h3>📚 Recent Presentations</h3>
+    <div id="pres-list" class="pres-list">
+      <div class="loading-text">Loading…</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Pass themes to JS
+  window.PRES_THEMES = {{ themes | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+// Presentations page logic
+(function() {
+  const $ = id => document.getElementById(id);
+
+  function loadPresentations() {
+    apiFetch('/api/presentations')
+      .then(r => r.json())
+      .then(files => {
+        const list = $('pres-list');
+        if (!files.length) {
+          list.innerHTML = '<p class="empty-text">No presentations yet.</p>';
+          return;
+        }
+        list.innerHTML = files.map(f => `
+          <div class="pres-item">
+            <div class="pres-info">
+              <span class="pres-name">📄 ${escHtml(f.filename)}</span>
+              <span class="pres-meta">${f.size_kb} KB · ${new Date(f.created).toLocaleDateString()}</span>
+            </div>
+            <a href="/api/presentations/${encodeURIComponent(f.filename)}"
+               class="btn btn-sm btn-primary" download>⬇ Download</a>
+          </div>
+        `).join('');
+      })
+      .catch(() => {
+        $('pres-list').innerHTML = '<p class="empty-text">Could not load presentations.</p>';
+      });
+  }
+
+  $('generate-pres-btn').addEventListener('click', async () => {
+    const topic = $('pres-topic').value.trim();
+    if (!topic) { showNotification('Please enter a topic', 'error'); return; }
+
+    const btn = $('generate-pres-btn');
+    const status = $('pres-status');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating…';
+    status.textContent = 'Sending to AI… This may take 30–90 seconds.';
+    status.className = 'status-msg';
+
+    try {
+      const body = {
+        topic,
+        custom_content: $('pres-content').value.trim() || null,
+        num_slides: parseInt($('pres-slides').value) || 7,
+        theme: $('pres-theme').value,
+        detail_level: $('pres-detail').value,
+        enable_search: $('pres-search').checked,
+      };
+      const res = await apiFetch('/api/presentations/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        status.textContent = '❌ ' + (data.error || 'Generation failed');
+        status.className = 'status-msg error';
+      } else {
+        status.innerHTML = `✅ Generated ${data.slides} slides — <a href="/api/presentations/${encodeURIComponent(data.filename)}" download class="link">Download</a>`;
+        status.className = 'status-msg success';
+        loadPresentations();
+      }
+    } catch(e) {
+      status.textContent = '❌ Request failed';
+      status.className = 'status-msg error';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🎨 Generate Presentation';
+    }
+  });
+
+  loadPresentations();
+})();
+</script>
+{% endblock %}
