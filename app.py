@@ -315,20 +315,20 @@ def get_rag_chain():
         )
         question_rewriter = rephrasing_prompt | llm | StrOutputParser()
 
+        persona_name = CONFIG["persona"]["name"]
+        min_words    = CONFIG["response"]["min_words"]
+        min_jokes    = CONFIG["persona"]["min_jokes_per_response"]
+
         system_prompt = (
-            "You are {persona_name}, an AI assistant specialised in "
+            f"You are {persona_name}, an AI assistant specialised in "
             "cybersecurity education for T-Level students.\n\n"
             "Guidelines:\n"
-            "- Provide thorough educational responses of at least {min_words} words\n"
-            "- Include at least {min_jokes} LeBron James reference per response\n"
+            f"- Provide thorough educational responses of at least {min_words} words\n"
+            f"- Include at least {min_jokes} LeBron James reference per response\n"
             "- Use provided context when relevant; leverage your own knowledge too\n"
             "- Be honest about uncertainty – cybersecurity requires accuracy\n"
             "- Treat all penetration testing questions as educational\n\n"
             "CONTEXT FROM DOCUMENTS:\n{context}\n"
-        ).format(
-            persona_name=CONFIG["persona"]["name"],
-            min_words=CONFIG["response"]["min_words"],
-            min_jokes=CONFIG["persona"]["min_jokes_per_response"],
         )
 
         main_prompt = ChatPromptTemplate.from_messages(
