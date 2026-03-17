@@ -67,4 +67,4 @@ class PresentationService:
     
     def get_available_themes(self) -> List[str]:
         """Get list of available presentation themes."""
-        return ["professional", "modern", "minimal", "dark"]
+        return ["professional", "modern", "minimal", "dark", "cyber"]

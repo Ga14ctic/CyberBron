@@ -32,11 +32,8 @@ from werkzeug.utils import secure_filename
 from langchain_community.vectorstores import Chroma
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_ollama import OllamaEmbeddings
-from langchain_ollama.llms import OllamaLLM
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from operator import itemgetter
+
+from claude_code_llm import ClaudeCodeLLM
 
 from services.search_service import SearchService
 from services.memory_service import MemoryService
@@ -170,7 +167,6 @@ CONFIG = load_config()
 
 # Convenience constants
 CHROMA_PATH = CONFIG["paths"]["chroma_db"]
-MODEL_NAME = CONFIG["models"]["llm"]
 EMBEDDING_MODEL = CONFIG["models"]["embeddings"]
 CONVERSATIONS_DIR = CONFIG["paths"]["conversations"]
 OUTPUT_DIR = CONFIG["paths"]["output"]
@@ -295,25 +291,7 @@ def get_rag_chain():
             search_kwargs={"k": CONFIG["rag"]["retrieval_k"]}
         )
 
-        llm = OllamaLLM(
-            model=MODEL_NAME,
-            base_url=OLLAMA_BASE_URL,
-            temperature=CONFIG["models"]["temperature"],
-        )
-
-        rephrasing_prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    "Given a chat history and the latest user question, "
-                    "formulate a standalone question. Do NOT answer it – "
-                    "just reformulate if needed, otherwise return as is.",
-                ),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}"),
-            ]
-        )
-        question_rewriter = rephrasing_prompt | llm | StrOutputParser()
+        llm = ClaudeCodeLLM(model=CONFIG["models"].get("claude_model", "sonnet"))
 
         persona_name = CONFIG["persona"]["name"]
         min_words    = CONFIG["response"]["min_words"]
@@ -331,27 +309,25 @@ def get_rag_chain():
             "CONTEXT FROM DOCUMENTS:\n{context}\n"
         )
 
-        main_prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}"),
-            ]
-        )
+        def rag_invoke(input_data):
+            question = input_data["input"]
+            chat_history = input_data.get("chat_history", [])
+            docs = retriever.invoke(question)
+            context = "\n\n".join(d.page_content for d in docs)
+            history_str = ""
+            for msg in chat_history[-10:]:
+                role = "User" if isinstance(msg, HumanMessage) else "Assistant"
+                history_str += f"{role}: {msg.content}\n"
+            prompt = system_prompt.replace("{context}", context)
+            prompt += f"\nCONVERSATION HISTORY:\n{history_str}\n"
+            prompt += f"\nCURRENT QUESTION:\n{question}\n"
+            return llm.invoke(prompt)
 
-        def retrieve_docs(data):
-            rephrased = data.pop("rephrased_question")
-            data["context"] = retriever.invoke(rephrased)
-            return data
+        class _RAGChain:
+            def invoke(self, data):
+                return rag_invoke(data)
 
-        _rag_chain = (
-            RunnablePassthrough.assign(rephrased_question=question_rewriter)
-            | retrieve_docs
-            | RunnablePassthrough.assign(question=itemgetter("input"))
-            | main_prompt
-            | llm
-            | StrOutputParser()
-        )
+        _rag_chain = _RAGChain()
         _llm = llm
         _flashcard_gen = FlashcardGenerator(llm)
         _quiz_gen = QuizGenerator(llm)
@@ -684,7 +660,7 @@ def index():
         previews=previews,
         ollama_ok=ollama_ok,
         rag_ready=rag_ready,
-        model_name=MODEL_NAME,
+        model_name="Claude Code",
         network_mode=is_network_mode(),
     )
 
@@ -736,7 +712,7 @@ def admin():
         network_mode=network_mode,
         ollama_ok=ollama_ok,
         rag_ready=rag_ready,
-        model_name=MODEL_NAME,
+        model_name="Claude Code",
         port=CONFIG["flask"].get("port", 5000),
     )
 

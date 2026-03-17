@@ -24,8 +24,8 @@ security:
 
 # Model Settings
 models:
-  llm: "mistral:latest"  # Changed from llama3 to mistral as required
-  embeddings: "nomic-embed-text"
+  claude_model: "sonnet"  # Claude Code CLI model (sonnet, opus, haiku)
+  embeddings: "nomic-embed-text"  # Ollama model for RAG embeddings only
   temperature: 0.7
 
 # Ollama Settings
